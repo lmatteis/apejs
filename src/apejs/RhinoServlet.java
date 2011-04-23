@@ -53,32 +53,29 @@ public class RhinoServlet extends HttpServlet {
 
         public void service(ServletRequest request, ServletResponse response)
                         throws ServletException, IOException {
-                Context cx = Context.enter();
+                Context context = Context.enter();
                 try {
-                        HttpServletRequest req = (HttpServletRequest) request;
-                        HttpServletResponse res = (HttpServletResponse) response;
+                    HttpServletRequest req = (HttpServletRequest) request;
+                    HttpServletResponse res = (HttpServletResponse) response;
+                    res.setContentType("text/html");
 
-                        ScriptEngine jsEngine = mgr.getEngineByName("JavaScript");
+                    File f = new File(PATH + "/main.js");
 
-                        // load main.js (our main app stuff)
-                        File f = new File(PATH + "/main.js");
-                        if (f.exists() && f.isFile()) {
-                                res.setContentType("text/html");
-                                jsEngine.eval(new FileReader(f)); // evaluating our main.js file
+                    ScriptableObject scope = context.initStandardObjects();
+                    context.evaluateReader(scope, new FileReader(f), "script", 1, null);
 
-                                // get the apejs object
-                                Object apejs = jsEngine.get("apejs");
+                    // get the apejs object scope
+                    ScriptableObject apejsScope = (ScriptableObject)scope.get("apejs", scope);
+                    // get the run function from the scope above
+                    Function fct = (Function)apejsScope.get("run", apejsScope);
+                    // run the run function 
+                    Object result = fct.call(
+                            context, scope, apejsScope, new Object[] {req, res});
 
-                                Invocable inv = (Invocable)jsEngine;
-                                // we call the run function inside the apejs object
-                                inv.invokeMethod(apejs, "run", req, res);
-                        } else {
-                                res.setStatus(404);
-                        }
-                } catch (ScriptException e) {
-                        throw new ServletException(e);
-                } catch (NoSuchMethodException e) {
-                        throw new ServletException(e);
+                } catch (IOException e) {
+                    throw new ServletException(e);
+                } finally {
+                    Context.exit();
                 }
         };
 
