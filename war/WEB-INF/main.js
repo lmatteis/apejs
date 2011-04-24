@@ -2,7 +2,10 @@ require("apejs.js");
 
 var index = {
     get: function(request, response) {
-        response.getWriter().println("<title>Fuck</title><b>Fuck nice!!</b>");
+        require("index.js", {
+            "apple": "sweet" 
+        });
+        response.getWriter().println(skin);
     }
 };
 

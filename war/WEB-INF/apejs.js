@@ -7,8 +7,7 @@ var apejs = {
         if(this.urls[path]) {
             this.urls[path][httpMethod](request, response);
         } else {
-            response.sendError(response.SC_NOT_FOUND,
-                       "This page doesn't exist.");
+            response.sendError(response.SC_NOT_FOUND, "This page doesn't exist.");
             
         }
     }

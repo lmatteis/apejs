@@ -86,10 +86,12 @@ public class RhinoServlet extends HttpServlet {
                 }
         };
 
-        public static void require(String jsFilePath) throws ServletException {
+        //public static void require(String jsFilePath) throws ServletException {
+        public static void require(Context cx, Scriptable thisObj, Object[] args, Function funObj) throws ServletException {
             try {
-                File f = new File(RhinoServlet.PATH + "/" + jsFilePath);
-                context.evaluateReader(RhinoServlet.global, new FileReader(f), "script", 1, null);
+                File f = new File(RhinoServlet.PATH + "/" + args[0]);
+                if(args.length == 2) thisObj = (Scriptable)args[1];
+                cx.evaluateReader(thisObj, new FileReader(f), "script", 1, null);
             } catch (IOException e) {
                 throw new ServletException(e);
             }

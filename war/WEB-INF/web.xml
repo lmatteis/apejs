@@ -13,8 +13,8 @@
             <param-name>debug</param-name>
             <param-value>true</param-value>
         </init-param>
-        
     </servlet>
+
     <servlet-mapping>
         <servlet-name>RhinoServlet</servlet-name>
         <url-pattern>/*</url-pattern>
