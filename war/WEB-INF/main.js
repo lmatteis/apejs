@@ -2,6 +2,7 @@ require("apejs.js");
 
 var index = {
     get: function(request, response) {
+        request.getSession(true);
         require("index.js", {
             "apple": "sweet" 
         });
