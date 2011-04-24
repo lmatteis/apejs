@@ -1,14 +1,4 @@
-var apejs = {
-    urls: {},
-    run: function(request, response) {
-        var path = request.getPathInfo();
-        var httpMethod = request.getMethod().toLowerCase();
-        // look for path TODO more complicated regex matches
-        if(this.urls[path]) {
-            this.urls[path][httpMethod](request, response);
-        }
-    }
-};
+require("apejs.js");
 
 var index = {
     get: function(request, response) {

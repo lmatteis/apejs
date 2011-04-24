@@ -1,8 +1,6 @@
 package apejs;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.logging.Logger;
 import java.util.*;
 
@@ -30,7 +28,9 @@ public class RhinoServlet extends HttpServlet {
         private static final ScriptEngineManager mgr = new ScriptEngineManager();
         private static boolean DEBUG;
         private static final Logger LOG = Logger.getLogger(RhinoServlet.class.getSimpleName());
-        private String PATH;
+        public static String PATH;
+        public static ScriptableObject global;
+        public static Context context;
 
         @Override
         public void init(ServletConfig config) throws ServletException {
@@ -53,7 +53,7 @@ public class RhinoServlet extends HttpServlet {
 
         public void service(ServletRequest request, ServletResponse response)
                         throws ServletException, IOException {
-                Context context = Context.enter();
+                context = Context.enter();
                 try {
                     HttpServletRequest req = (HttpServletRequest) request;
                     HttpServletResponse res = (HttpServletResponse) response;
@@ -61,16 +61,23 @@ public class RhinoServlet extends HttpServlet {
 
                     File f = new File(PATH + "/main.js");
 
-                    ScriptableObject scope = context.initStandardObjects();
-                    context.evaluateReader(scope, new FileReader(f), "script", 1, null);
+                    global = context.initStandardObjects();
+
+                    // add the global "names" like require
+                    String[] names = new String[] {
+                        "require"
+                    };
+                    global.defineFunctionProperties(names, RhinoServlet.class, ScriptableObject.DONTENUM);
+
+                    context.evaluateReader(global, new FileReader(f), "script", 1, null);
 
                     // get the apejs object scope
-                    ScriptableObject apejsScope = (ScriptableObject)scope.get("apejs", scope);
+                    ScriptableObject apejsScope = (ScriptableObject)global.get("apejs", global);
                     // get the run function from the scope above
                     Function fct = (Function)apejsScope.get("run", apejsScope);
                     // run the run function 
                     Object result = fct.call(
-                            context, scope, apejsScope, new Object[] {req, res});
+                            context, global, apejsScope, new Object[] {req, res});
 
                 } catch (IOException e) {
                     throw new ServletException(e);
@@ -79,4 +86,12 @@ public class RhinoServlet extends HttpServlet {
                 }
         };
 
+        public static void require(String jsFilePath) throws ServletException {
+            try {
+                File f = new File(RhinoServlet.PATH + "/" + jsFilePath);
+                context.evaluateReader(RhinoServlet.global, new FileReader(f), "script", 1, null);
+            } catch (IOException e) {
+                throw new ServletException(e);
+            }
+        }
 }
