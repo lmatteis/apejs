@@ -34,13 +34,13 @@ libraries and that could let me prototype applications really quickly (think of
 
 ## How to start
 
-ApeJS works great with Google App Engine. Open the `build.xml` file and change
-the path to your app-engine sdk path. 
+ApeJS works great with Google App Engine. All you have to do is run
+`dev_appserver.sh` (or .cmd) against the `war` directory. Next you can start
+messing around with the JavaScript files inside `WEB-INF`. `main.js`
+is where the url routing happens - the code in there should get you started.
 
-Then type `ant compile` to compile the entire project.
-
-Now you basically have a `war` project ready to be deployed to the Google App
-Engine cloud. To test things out use the `dev_appserver.sh` (or .cmd) script by
-simply running it against the project `war` directory.
+Note that in order to use the App Engine Storage API and other App Engine APIs
+you have to copy the `appengine-api-1.0-sdk-x.y.z.jar` file from the App
+Engine SDK to the `WEB-INF/lib/` directory.
 
 *More to come ...*
