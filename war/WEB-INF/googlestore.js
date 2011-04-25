@@ -20,5 +20,11 @@ var googlestore = {
         var key = KeyFactory.createKey(kind, keyName);
         var entity = this.datastore.get(key);
         return entity;
+    },
+    query: function(kind) {
+        var q = new Query(kind);
+        var preparedQuery = this.datastore.prepare(q);
+
+        return preparedQuery.asList(FetchOptions.Builder.withLimit(5)).toArray();
     }
 };

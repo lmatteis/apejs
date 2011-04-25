@@ -8,6 +8,7 @@ var index = {
             "eyecolor": "green"
         });
 
+        // FIXME - abstract put so it uses transactions
         googlestore.datastore.put(alice);
         
         response.getWriter().println("done");
@@ -28,8 +29,19 @@ var test = {
         }
     }
 };
+var all = {
+    get: function(request, response) {
+        var allPeople = googlestore.query("Person");
+
+        for(var i=0; i<allPeople.length; i++) {
+            response.getWriter().println(allPeople[i].getProperty("gender"));
+        }
+
+    }
+};
 
 apejs.urls = {
     "/": index,
+    "/all": all,
     "/test" : test
 };
