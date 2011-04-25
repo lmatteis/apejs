@@ -1,2 +1,2 @@
 require("header.js");
-skin += apple+" <b>Content</b>";
+skin += aliceAge+" <b>Content</b>";

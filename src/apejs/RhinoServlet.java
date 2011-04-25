@@ -61,7 +61,9 @@ public class RhinoServlet extends HttpServlet {
 
                     File f = new File(PATH + "/main.js");
 
-                    global = context.initStandardObjects();
+                    // using this instead of context.initStandardObjects()
+                    // so importPackage works
+                    global = new ImporterTopLevel(context);
 
                     // add the global "names" like require
                     String[] names = new String[] {
