@@ -1,15 +1,14 @@
 require("apejs.js");
-
-importPackage(com.google.appengine.api.datastore);
+require("googlestore.js");
 
 var index = {
     get: function(request, response) {
-        var alice = new Entity("Person", "Alice");
-        alice.setProperty("gender", "male");
-        alice.setProperty("age", 20);
+        var alice = googlestore.entity("Person", "Miky", {
+            "gender": "female",
+            "eyecolor": "green"
+        });
 
-        var datastore = DatastoreServiceFactory.getDatastoreService();
-        datastore.put(alice);
+        googlestore.datastore.put(alice);
         
         response.getWriter().println("done");
     }
@@ -17,17 +16,15 @@ var index = {
 
 var test = {
     get: function(request, response) {
-        var aliceKey = KeyFactory.createKey("Person", "Alice");
-        var datastore = DatastoreServiceFactory.getDatastoreService();
         try {
-            var alice = datastore.get(aliceKey);
-            var aliceAge = alice.getProperty("age");
+            var miky = googlestore.getObjectById("Person", "Miky");
+            
             require("index.js", {
-                "aliceAge": aliceAge 
+                "aliceAge": miky.getProperty("eyecolor") 
             });
             response.getWriter().println(skin);
         } catch (e) {
-            response.sendError(response.SC_NOT_FOUND, "Error fuck");
+            response.getWriter().println(e.getMessage());
         }
     }
 };
