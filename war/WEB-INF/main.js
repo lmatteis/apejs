@@ -3,15 +3,24 @@ require("googlestore.js");
 
 var index = {
     get: function(request, response) {
-        var alice = googlestore.entity("Person", "Miky", {
-            "gender": "female",
-            "eyecolor": "green"
+        var allPeople = googlestore.query("Person");
+        require("index.js", {
+            "allPeople" : allPeople 
+        });
+        response.getWriter().println(skin);
+    },
+    post: function(request, response) {
+        var name = request.getParameter("name");
+        var alice = googlestore.entity("Person", name, {
+            "gender": request.getParameter("gender"),
+            "age": request.getParameter("age")
         });
 
         // FIXME - abstract put so it uses transactions
         googlestore.datastore.put(alice);
-        
-        response.getWriter().println("done");
+
+        response.sendRedirect("/");
+
     }
 };
 
@@ -31,11 +40,6 @@ var test = {
 };
 var all = {
     get: function(request, response) {
-        var allPeople = googlestore.query("Person");
-
-        for(var i=0; i<allPeople.length; i++) {
-            response.getWriter().println(allPeople[i].getProperty("gender"));
-        }
 
     }
 };
