@@ -29,12 +29,12 @@ public class RhinoServlet extends HttpServlet {
         private static boolean DEBUG;
         private static final Logger LOG = Logger.getLogger(RhinoServlet.class.getSimpleName());
         public static String PATH;
-        public static ScriptableObject global;
-        public static Context context;
+        public static String APP_PATH;
 
         @Override
         public void init(ServletConfig config) throws ServletException {
                 PATH = config.getServletContext().getRealPath(".");
+                PATH += "/WEB-INF"; // we don't want to expose the .js files
 
                 String dbg = config.getInitParameter("debug");
                 if ("true".equals(dbg))
@@ -42,28 +42,30 @@ public class RhinoServlet extends HttpServlet {
                 if (DEBUG)
                         LOG.info("Log is enabled");
 
-                String ssPath = config.getInitParameter("serversidepath");
-                if (ssPath != null && new File(PATH + ssPath).exists())
-                        PATH += ssPath;
+
+                APP_PATH = config.getInitParameter("app");
+                if (APP_PATH != null && new File(PATH + "/"+ APP_PATH).exists())
+                    APP_PATH = PATH + "/" + APP_PATH;
                 else
-                        PATH += "/WEB-INF"; // we don't want to expose the .js files
+                    APP_PATH = PATH + "/app";
+
                 if (DEBUG)
                         LOG.info("the server side script path is :[" + PATH + "]");
         }
 
         public void service(ServletRequest request, ServletResponse response)
                         throws ServletException, IOException {
-                context = Context.enter();
+                Context context = Context.enter();
                 try {
                     HttpServletRequest req = (HttpServletRequest) request;
                     HttpServletResponse res = (HttpServletResponse) response;
                     res.setContentType("text/html");
 
-                    File f = new File(PATH + "/main.js");
+                    File f = new File(APP_PATH + "/main.js");
 
                     // using this instead of context.initStandardObjects()
                     // so importPackage works
-                    global = new ImporterTopLevel(context);
+                    ScriptableObject global = new ImporterTopLevel(context);
 
                     // add the global "names" like require
                     String[] names = new String[] {
@@ -91,7 +93,16 @@ public class RhinoServlet extends HttpServlet {
         //public static void require(String jsFilePath) throws ServletException {
         public static void require(Context cx, Scriptable thisObj, Object[] args, Function funObj) throws ServletException {
             try {
-                File f = new File(RhinoServlet.PATH + "/" + args[0]);
+                // if the args[0] starts with a dot look inside the current APP_PATH
+                String filename = (String)args[0];
+                File f;
+                if(filename.startsWith("./")) {
+                    filename = filename.replace("./", "");
+                    f = new File(RhinoServlet.APP_PATH + "/" + filename);
+                } else {
+                    // otherwise just look in modules
+                    f = new File(RhinoServlet.PATH + "/modules/" + filename);
+                }
                 if(args.length == 2) thisObj = (Scriptable)args[1];
                 cx.evaluateReader(thisObj, new FileReader(f), "script", 1, null);
             } catch (IOException e) {

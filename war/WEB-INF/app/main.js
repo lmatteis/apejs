@@ -1,10 +1,10 @@
-require("modules/apejs.js");
-require("modules/googlestore.js");
+require("apejs.js");
+require("googlestore.js");
 
 var index = {
     get: function(request, response) {
         var allPeople = googlestore.query("Person");
-        require("index.js", {
+        require("./skins/index.js", {
             "allPeople" : allPeople 
         });
         response.getWriter().println(skin);
@@ -29,7 +29,7 @@ var test = {
         try {
             var miky = googlestore.getObjectById("Person", "Miky");
             
-            require("index.js", {
+            require("./skins/index.js", {
                 "aliceAge": miky.getProperty("eyecolor") 
             });
             response.getWriter().println(skin);

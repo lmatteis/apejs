@@ -1,4 +1,4 @@
-require("header.js");
+require("./skins/header.js");
 for(var i=0; i<allPeople.length; i++) {
     skin += allPeople[i].getProperty("gender") + " - " + allPeople[i].getProperty("age") + "<br>";
 }
