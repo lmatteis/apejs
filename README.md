@@ -13,11 +13,18 @@ Prototyping applications is as easy as writing some JSON:
             get: function(request, response) {
                 request.getSession(true);
             }
+        },
+        "/recipes/([a-zA-Z0-9_]+)" : {
+            get: function(request, response, matches) {
+                response.getWriter().println(matches[1]);
+            }
         }
     }
 
-Reaching `http://yoursite.com/` will output `Hello World!`, and accessing
-`http://yoursite.com/foo` will start a new session. 
+Reaching `http://yoursite.com/` will output `Hello World!`, accessing
+`http://yoursite.com/foo` will start a new session and going to
+`http://yoursite.com/recipes/my-fantastic-recipe` will show you
+`my-fantastic-recipe`. 
 
 You can leverage the entire Java API directly through *JavaScript*, avoiding re-compilation times in favor of
 raw scripting power!

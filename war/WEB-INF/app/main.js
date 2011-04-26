@@ -34,18 +34,17 @@ var test = {
             });
             response.getWriter().println(skin);
         } catch (e) {
-            response.getWriter().println(e.getMessage());
+            response.getWriter().println(e.javaException.getMessage());
         }
-    }
-};
-var all = {
-    get: function(request, response) {
-
     }
 };
 
 apejs.urls = {
     "/": index,
-    "/all": all,
-    "/test" : test
+    "/test" : test,
+    "/recipes/([a-zA-Z0-9_]+)" : {
+        get: function(request, response, matches) {
+            response.getWriter().println(matches[1]);
+        }
+    }
 };
