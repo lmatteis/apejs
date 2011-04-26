@@ -1,5 +1,5 @@
-require("apejs.js");
-require("googlestore.js");
+require("modules/apejs.js");
+require("modules/googlestore.js");
 
 var index = {
     get: function(request, response) {
