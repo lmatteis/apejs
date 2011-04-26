@@ -45,7 +45,7 @@ ApeJS works great with Google App Engine. All you have to do is run
 `dev_appserver.sh` (or .cmd) against the `war` directory. Next you can start
 writing code - the *only* directory you should work with is the `WEB-INF/app/`
 directory which basically contains all of your app-code. Ideally if you're
-starting a new open-source projects that works with ApeJS you would only share
+starting a new open-source project that works with ApeJS you would only share
 the `app` dir. In there you will find `main.js` which is where the url routing
 happens.
 
