@@ -43,8 +43,11 @@ libraries and that could let me prototype applications really quickly (think of
 
 ApeJS works great with Google App Engine. All you have to do is run
 `dev_appserver.sh` (or .cmd) against the `war` directory. Next you can start
-messing around with the JavaScript files inside `WEB-INF`. `main.js`
-is where the url routing happens - the code in there should get you started.
+writing code - the *only* directory you should work with is the `WEB-INF/app/`
+directory which basically contains all of your app-code. Ideally if you're
+starting a new open-source projects that works with ApeJS you would only share
+the `app` dir. In there you will find `main.js` which is where the url routing
+happens.
 
 Note that in order to use the App Engine Storage API and other App Engine APIs
 you have to copy the `appengine-api-1.0-sdk-x.y.z.jar` file from the App
