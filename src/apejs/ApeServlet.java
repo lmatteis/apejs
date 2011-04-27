@@ -26,9 +26,11 @@ public class ApeServlet extends HttpServlet {
         private static final Logger LOG = Logger.getLogger(ApeServlet.class.getSimpleName());
         public static String PATH;
         public static String APP_PATH;
+        public static ServletConfig CONFIG;
 
         @Override
         public void init(ServletConfig config) throws ServletException {
+                CONFIG = config;
                 PATH = config.getServletContext().getRealPath(".");
                 PATH += "/WEB-INF"; // we don't want to expose the .js files
 
@@ -69,9 +71,9 @@ public class ApeServlet extends HttpServlet {
                     };
                     global.defineFunctionProperties(names, ApeServlet.class, ScriptableObject.DONTENUM);
 
+                    // set the ApeServlet context
                     Object wrappedOut = context.javaToJS(this, global);
                     ScriptableObject.putProperty(global, "ApeServlet", wrappedOut);
-                    
 
                     context.evaluateReader(global, new FileReader(f), "script", 1, null);
 

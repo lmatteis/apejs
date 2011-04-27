@@ -18,7 +18,8 @@ var apejs = {
 
         if(!matchedUrl) { // try accessing static content inside APP_PATH/public
             try {
-                // FIXME - this is really ugly
+                // FIXME - this is really ugly - find other way to get servlet Context
+                var mimeType = ApeServlet.CONFIG.getServletContext().getMimeType(path);
                 var resPath = ApeServlet.APP_PATH+"/public"+path;
                 var res = new File(resPath);
                 // create an array of bytes as big as the file
@@ -27,6 +28,7 @@ var apejs = {
                 // read file contents into byte array
                 fileInputStream.read(b);
 
+                response.setContentType(mimeType);
                 response.getOutputStream().write(b);
             } catch (e) {
                 response.getWriter().println(e);

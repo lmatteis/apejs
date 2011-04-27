@@ -46,11 +46,77 @@ ApeJS works great with Google App Engine. All you have to do is run
 writing code - the *only* directory you should work with is the `WEB-INF/app/`
 directory which basically contains all of your app-code. Ideally if you're
 starting a new open-source project that works with ApeJS you would only share
-the `app` dir. In there you will find `main.js` which is where the url routing
-happens.
+the `app` dir. 
+
+The main file you need to worry about is `main.js`. This is where all the
+handlers for specific urls are called. The examples already in there should get
+you started. 
+
+An important folder you want to keep your eyes on is the `/public/` directory.
+All your static content should go in here, *stylesheets*, *images* etc. So when
+you access `http://yoursite.com/image.jpg` it will look inside
+`WEB-INF/app/public/image.jpg` for it.
 
 Note that in order to use the App Engine Storage API and other App Engine APIs
 you have to copy the `appengine-api-1.0-sdk-x.y.z.jar` file from the App
 Engine SDK to the `WEB-INF/lib/` directory.
+
+### Importing external JS files
+
+Importing external JS files is quite easy thanks to `require()`. ApeJS is not
+compliant with [CommonJS](http://www.commonjs.org/) simply because all the stuff that CommonJS comes
+with will not work on Google App Engine where no I/O operations are allowed for
+example.
+
+To include ApeJS modules (located under `WEB-INF/modules/`) you can do:
+
+    require("googlestore.js");
+
+Otherwise you can include things from within your app directory by simply adding
+a `./` in front of the filename:
+
+    require("./myfile.js");
+
+`require()` is also used for templating. In ApeJS templating is done by just
+defining JavaScript strings. 
+
+    require("./mytemplate.js")
+
+and the contents of `mytemplate.js` can just output HTML as a multi-line JS
+variable:
+
+    // contents of mytemplate.js
+    var html = "<html><title>Hello World!</title></html>";
+
+To pass data to the template you `require()` takes an object as its second
+argument:
+
+    require("./mytemplate.js", { foo: "bar" });
+
+and in the template...
+
+    // contents of mytemplate.js
+    var html = "<html><title>" + foo + "</title></html>";
+
+So to wrap things up here's a complete example:
+
+    // header.js
+    var str = "";
+    for(var i=0; i<data.length; i++)
+        str += data[i] + " - ";
+
+    // main.js
+    apejs.urls = {
+        "/": {
+            get: function(request, response) {
+                var data = [1,2,3];
+                require("./skins/header.js", { data: data });
+
+                // we can now access the "str" variable which
+                // was defined in the "header.js" that we evaluated above
+                response.getWriter().println(str);
+            }
+        }
+    }
 
 *More to come ...*
