@@ -1,3 +1,5 @@
+importPackage(java.io);
+
 var apejs = {
     urls: {},
     run: function(request, response) {
@@ -15,9 +17,20 @@ var apejs = {
         }
 
         if(!matchedUrl) { // try accessing static content inside APP_PATH/public
-            response.getWriter().println(ApeServlet.APP_PATH);
-            //request.getRequestDispatcher("WEB-INF/app/public"+path).forward(request, response);
-            //response.sendError(response.SC_NOT_FOUND, "This page doesn't exist.");
+            try {
+                // FIXME - this is really ugly
+                var resPath = ApeServlet.APP_PATH+"/public"+path;
+                var res = new File(resPath);
+                // create an array of bytes as big as the file
+                var b = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, res.length()); 
+                var fileInputStream = new FileInputStream(res);
+                // read file contents into byte array
+                fileInputStream.read(b);
+
+                response.getOutputStream().write(b);
+            } catch (e) {
+                response.getWriter().println(e);
+            }
         }
     }
 };
