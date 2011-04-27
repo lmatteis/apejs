@@ -17,17 +17,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.mozilla.javascript.*;
 
-
-/**
- * Servlet implementation class RhinoServlet
- */
-public class RhinoServlet extends HttpServlet {
+public class ApeServlet extends HttpServlet {
 
         private static final long serialVersionUID = 7313374L;
 
         private static final ScriptEngineManager mgr = new ScriptEngineManager();
         private static boolean DEBUG;
-        private static final Logger LOG = Logger.getLogger(RhinoServlet.class.getSimpleName());
+        private static final Logger LOG = Logger.getLogger(ApeServlet.class.getSimpleName());
         public static String PATH;
         public static String APP_PATH;
 
@@ -71,7 +67,11 @@ public class RhinoServlet extends HttpServlet {
                     String[] names = new String[] {
                         "require"
                     };
-                    global.defineFunctionProperties(names, RhinoServlet.class, ScriptableObject.DONTENUM);
+                    global.defineFunctionProperties(names, ApeServlet.class, ScriptableObject.DONTENUM);
+
+                    Object wrappedOut = context.javaToJS(this, global);
+                    ScriptableObject.putProperty(global, "ApeServlet", wrappedOut);
+                    
 
                     context.evaluateReader(global, new FileReader(f), "script", 1, null);
 
@@ -80,8 +80,7 @@ public class RhinoServlet extends HttpServlet {
                     // get the run function from the scope above
                     Function fct = (Function)apejsScope.get("run", apejsScope);
                     // run the run function 
-                    Object result = fct.call(
-                            context, global, apejsScope, new Object[] {req, res});
+                    Object result = fct.call(context, global, apejsScope, new Object[] {req, res});
 
                 } catch (IOException e) {
                     throw new ServletException(e);
@@ -98,10 +97,10 @@ public class RhinoServlet extends HttpServlet {
                 File f;
                 if(filename.startsWith("./")) {
                     filename = filename.replace("./", "");
-                    f = new File(RhinoServlet.APP_PATH + "/" + filename);
+                    f = new File(ApeServlet.APP_PATH + "/" + filename);
                 } else {
                     // otherwise just look in modules
-                    f = new File(RhinoServlet.PATH + "/modules/" + filename);
+                    f = new File(ApeServlet.PATH + "/modules/" + filename);
                 }
                 if(args.length == 2) thisObj = (Scriptable)args[1];
                 cx.evaluateReader(thisObj, new FileReader(f), "script", 1, null);

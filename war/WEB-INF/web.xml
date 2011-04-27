@@ -5,9 +5,9 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
     version="2.5">
     <servlet>
-        <servlet-name>RhinoServlet</servlet-name>
+        <servlet-name>ApeServlet</servlet-name>
         <servlet-class>
-            apejs.RhinoServlet
+            apejs.ApeServlet
         </servlet-class>
         <init-param>
             <param-name>debug</param-name>
@@ -16,7 +16,7 @@
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>RhinoServlet</servlet-name>
+        <servlet-name>ApeServlet</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
 

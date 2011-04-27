@@ -26,7 +26,7 @@ Reaching `http://yoursite.com/` will output `Hello World!`, accessing
 `http://yoursite.com/recipes/my-fantastic-recipe` will show you
 `my-fantastic-recipe`. 
 
-You can leverage the entire Java API directly through *JavaScript*, avoiding re-compilation times in favor of
+You can leverage the entire Java API (Rhino) directly through *JavaScript*, avoiding re-compilation times in favor of
 raw scripting power!
 
 ## Idea behind ApeJS
