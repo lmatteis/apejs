@@ -88,7 +88,7 @@ variable:
     // contents of mytemplate.js
     var html = "<html><title>Hello World!</title></html>";
 
-To pass data to the template you `require()` takes an object as its second
+To pass data to the template `require()` takes an object as its second
 argument:
 
     require("./mytemplate.js", { foo: "bar" });
