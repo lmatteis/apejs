@@ -5,11 +5,12 @@ require("googlestore.js");
 
 var index = {
     get: function(request, response) {
-        var allPeople = googlestore.query("Person");
-        require("./skins/index.js", {
-            "allPeople" : allPeople 
-        });
-        response.getWriter().println(skin);
+        try {
+            var skin = render("./skins/index.js");
+            response.getWriter().println(skin);
+        } catch (e) {
+            response.getWriter().println(e.javaException.getMessage());
+        }
     },
     post: function(request, response) {
         var name = request.getParameter("name");
