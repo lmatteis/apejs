@@ -23,8 +23,17 @@ var googlestore = {
     },
     query: function(kind) {
         var q = new Query(kind);
-        var preparedQuery = this.datastore.prepare(q);
+        function queryFilter(name, filter, value) {
+            q.addFilter(name, Query.FilterOperator.EQUAL, value);
+        }
+        function result() {
+            var preparedQuery = googlestore.datastore.prepare(q);
+            return preparedQuery.asList(FetchOptions.Builder.withLimit(5)).toArray();
+        }
+        return {
+            queryFilter: queryFilter,
+            result: result
+        };
 
-        return preparedQuery.asList(FetchOptions.Builder.withLimit(5)).toArray();
     }
 };
