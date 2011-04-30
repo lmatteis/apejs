@@ -8,12 +8,25 @@ var googlestore = {
     datastore: DatastoreServiceFactory.getDatastoreService(),
 
     // creates a new entity
-    entity: function(kind, keyName, data) {
-        var entity = new Entity(kind, keyName);
+    entity: function() {
+        if(arguments.length === 2) {
+            var kind = arguments[0],
+                data = arguments[1],
+                entity = new Entity(kind);
+        } else {
+            var kind = arguments[0],
+                keyName = arguments[1],
+                data = arguments[2],
+                entity = new Entity(kind, keyName);
+        }
+
         for(var i in data) {
             entity.setProperty(i, data[i]);
         }
         return entity;
+    },
+    put: function(entity) {
+        this.datastore.put(entity);
     },
     // mimics JDO functionality
     getObjectByKey: function(kind, keyName) {
