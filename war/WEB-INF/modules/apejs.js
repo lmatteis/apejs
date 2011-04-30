@@ -36,7 +36,8 @@ var apejs = {
                 response.setContentType(mimeType);
                 response.getOutputStream().write(b);
             } catch (e) {
-                response.getWriter().println(e);
+                // send 404
+                response.sendError(response.SC_NOT_FOUND);
             }
         }
     }
