@@ -5,6 +5,11 @@ var apejs = {
     run: function(request, response) {
         var path = request.getPathInfo();
         var httpMethod = request.getMethod().toLowerCase();
+
+        // before running the http verb method run the before handler
+        if(this.before)
+            this.before(request, response);
+
         var matchedUrl = false;
         for(var i in this.urls) {
             var regex = "^"+i+"/?$";
