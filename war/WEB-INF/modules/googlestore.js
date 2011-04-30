@@ -16,9 +16,10 @@ var googlestore = {
         return entity;
     },
     // mimics JDO functionality
-    getObjectById: function(kind, keyName) {
-        var key = KeyFactory.createKey(kind, keyName);
-        var entity = this.datastore.get(key);
+    getObjectByKey: function(kind, keyName) {
+        if(!keyName)
+            return null;
+        var entity = this.datastore.get(keyName);
         return entity;
     },
     query: function(kind) {
