@@ -26,27 +26,27 @@ var googlestore = {
         return entity;
     },
     put: function(entity) {
-        this.datastore.put(entity);
+        return this.datastore.put(entity);
     },
     // mimics JDO functionality
-    getObjectByKey: function(kind, keyName) {
-        if(!keyName)
+    get: function(key) {
+        if(!key)
             return null;
-        var entity = this.datastore.get(keyName);
+        var entity = this.datastore.get(key);
         return entity;
     },
     query: function(kind) {
         var q = new Query(kind);
-        function queryFilter(name, filter, value) {
-            q.addFilter(name, Query.FilterOperator.EQUAL, value);
+        function addFilter(propertyName, filter, value) {
+            q.addFilter(propertyName, Query.FilterOperator.EQUAL, value);
         }
-        function result() {
+        function fetch(num) {
             var preparedQuery = googlestore.datastore.prepare(q);
-            return preparedQuery.asList(FetchOptions.Builder.withLimit(5)).toArray();
+            return preparedQuery.asList(FetchOptions.Builder.withLimit(num)).toArray();
         }
         return {
-            queryFilter: queryFilter,
-            result: result
+            addFilter: addFilter,
+            fetch: fetch
         };
 
     }
