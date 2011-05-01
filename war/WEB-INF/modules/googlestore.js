@@ -21,6 +21,11 @@ var googlestore = {
         }
 
         for(var i in data) {
+            // google's datastore doesn't like native arrays.
+            // it needs a Collection for properties with
+            // multiple values
+            if(typeof data[i] == "object")
+                data[i] = java.util.Arrays.asList(data[i]);
             entity.setProperty(i, data[i]);
         }
         return entity;
