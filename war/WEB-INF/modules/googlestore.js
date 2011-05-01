@@ -49,5 +49,10 @@ var googlestore = {
             fetch: fetch
         };
 
+    },
+    // abstracting everything as possible
+    createKey: function(kind, id) {
+        return KeyFactory.createKey(kind, id);
     }
+
 };
