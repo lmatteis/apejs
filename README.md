@@ -54,14 +54,14 @@ you started.
 
 An important folder you want to keep your eyes on is the `/public/` directory.
 All your static content should go in here, *stylesheets*, *images* etc. So when
-you access `http://yoursite.com/image.jpg` it will look inside
+you access `http://yoursite.com/image.jpg` the server will look inside
 `WEB-INF/app/public/image.jpg` for it.
 
 Note that in order to use the App Engine Storage API and other App Engine APIs
 you have to copy the `appengine-api-1.0-sdk-x.y.z.jar` file from the App
 Engine SDK to the `WEB-INF/lib/` directory.
 
-### Importing external JS files
+## Importing external JS files
 
 Importing external JS files is quite easy thanks to `require()`. ApeJS is not
 compliant with [CommonJS](http://www.commonjs.org/) simply because all the stuff that CommonJS comes
@@ -77,46 +77,48 @@ a `./` in front of the filename:
 
     require("./myfile.js");
 
-`require()` is also used for templating. In ApeJS templating is done by just
-defining JavaScript strings. 
+`require()` will simply evaluate the contents of the JavaScript file in `global`
+context. So even if you run it inside a function, it's scope is still global. To
+control the scope from which the JavaScript is evaluated, you can pass a second
+parameter to the function, which is an object.
 
-    require("./mytemplate.js")
+    require("./myfile.js", { foo: "bar" });
 
-and the contents of `mytemplate.js` can just output HTML as a multi-line JS
-variable:
+And inside the `./myfile.js` you can access the `foo` property using the obvious
+`this.foo` syntax. So basically `this` becomes the object you pass as a second
+parameter to `require()`. If this doesn't make sense please leave a comment or
+send me an email.
 
-    // contents of mytemplate.js
-    var html = "<html><title>Hello World!</title></html>";
+## Some templating
 
-To pass data to the template `require()` takes an object as its second
-argument:
+I thought a lot about templating and instead of re-implementing a language
+by-itself I wanted to keep it simple and have the ability to
+access files contents as strings and then manipulate them directly with
+JavaScript. To do this you can use `render()`:
 
-    require("./mytemplate.js", { foo: "bar" });
+    var tmpl = render("./index.html")
+                .replace("{{title}}", title)
+                .replace("{{recipes}}, recipes);
 
-and in the template...
+    response.getWriter().println(tmpl);
 
-    // contents of mytemplate.js
-    var html = "<html><title>" + foo + "</title></html>";
+## Google Datastore
 
-So to wrap things up here's a complete example:
+I'm trying to implement a really basic abstraction around the low-level Google
+datastore API. You can read the code under `WEB-INF/modules/googlestore.js`.
 
-    // header.js
-    var str = "";
-    for(var i=0; i<data.length; i++)
-        str += data[i] + " - ";
+To create an *entity* and store it in the datastore you do:
 
-    // main.js
-    apejs.urls = {
-        "/": {
-            get: function(request, response) {
-                var data = [1,2,3];
-                require("./skins/header.js", { data: data });
+    require("googlestore.js");
 
-                // we can now access the "str" variable which
-                // was defined in the "header.js" that we evaluated above
-                response.getWriter().println(str);
-            }
-        }
-    }
+    var e = googlestore.entity("person", {
+        "name": "Luca",
+        "age": 25,
+        "nationality: "Italian"
+    });
+
+    // save the entity to the datastore
+    var key = googlestore.put(e);
+
 
 *More to come ...*
