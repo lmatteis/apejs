@@ -30,6 +30,13 @@ var googlestore = {
         }
         return entity;
     },
+    set: function(entity, data) {
+        for(var i in data) {
+            if(data[i] instanceof Array)
+                data[i] = java.util.Arrays.asList(data[i]);
+            entity.setProperty(i, data[i]);
+        }
+    },
     put: function(entity) {
         return this.datastore.put(entity);
     },
