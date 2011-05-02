@@ -77,7 +77,7 @@ public class ApeServlet extends HttpServlet {
             Object wrappedOut = context.javaToJS(this, global);
             ScriptableObject.putProperty(global, "ApeServlet", wrappedOut);
 
-            context.evaluateReader(global, new FileReader(f), mainFileName, 1, null);
+            context.evaluateReader(global, new InputStreamReader(new FileInputStream(f), "ISO-8859-1"), mainFileName, 1, null);
 
             // get the apejs object scope
             ScriptableObject apejsScope = (ScriptableObject)global.get("apejs", global);
@@ -106,7 +106,7 @@ public class ApeServlet extends HttpServlet {
                 f = new File(ApeServlet.PATH + "/modules/" + filename);
             }
             if(args.length == 2) thisObj = (Scriptable)args[1];
-            cx.evaluateReader(thisObj, new FileReader(f), filename, 1, null);
+            cx.evaluateReader(thisObj, new InputStreamReader(new FileInputStream(f), "ISO-8859-1"), filename, 1, null);
         } catch (IOException e) {
             throw new ServletException(e);
         }
