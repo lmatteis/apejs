@@ -47,6 +47,9 @@ var googlestore = {
         var entity = this.datastore.get(key);
         return entity;
     },
+    del: function(key) {
+        this.datastore["delete"](key);
+    },
     query: function(kind) {
         var q = new Query(kind);
         function addFilter(propertyName, filter, value) {
