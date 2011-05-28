@@ -71,12 +71,12 @@ var googlestore = (function(){
             var q = new Query(kind);
             var options = FetchOptions.Builder.withDefaults();
             var self;
-            function addFilter(propertyName, operator, value) {
+            function filter(propertyName, operator, value) {
                 operator = filterOperators[operator] || operator;
                 q.addFilter(propertyName, Query.FilterOperator[operator], value);
                 return self;
             }
-            function addSort(propertyName, direction) {
+            function sort(propertyName, direction) {
                 direction = sortDirections[direction||"ASC"] || direction;
                 q.addSort(propertyName, Query.SortDirection[direction]);
                 return self;
@@ -99,8 +99,8 @@ var googlestore = (function(){
                 return preparedQuery.countEntities(options);
             }
             return self = {
-                filter : addFilter,
-                sort   : addSort,
+                filter : filter,
+                sort   : sort,
                 limit  : limit,
                 offset : offset,
                 fetch  : fetch,
