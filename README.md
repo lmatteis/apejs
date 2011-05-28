@@ -130,7 +130,7 @@ You get an *entity* from the datastore by using a key:
     // get the entity from the datastore
     var person = googlestore.get(key);
 
-Listing more entities is done by using a query:
+Listing more *entities* is done by using a query:
 
     // selecting youngest 5 adult males as an array
     var people = googlestore.query("person")

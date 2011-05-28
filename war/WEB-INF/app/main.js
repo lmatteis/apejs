@@ -89,10 +89,20 @@ var person = {
     }
 };
 
+var del = {
+    get: function(request, response, matches) {
+        var id  = parseInt(matches[1], 10);
+        var key = googlestore.createKey("Person", id);
+        googlestore.del(key);
+        response.sendRedirect("/");
+    }
+}
+
 apejs.urls = {
     "/": index,
     "/test" : test,
-    "/person/([a-zA-Z0-9_]+)" : person
+    "/person/([a-zA-Z0-9_]+)" : person,
+    "/delete/([0-9]+)" : del
 };
 
 
