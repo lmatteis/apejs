@@ -115,7 +115,7 @@ To create an *entity* and store it in the datastore you do:
     var e = googlestore.entity("person", {
         "name": "Luca",
         "age": 25,
-				"gender": "female",
+        "gender": "female",
         "nationality: "Italian"
     });
 
@@ -134,14 +134,14 @@ Listing more entities is done by using a query:
 
     // selecting youngest 5 adult males as an array
     var people = googlestore.query("person")
-		    .filter("gender", "male")
-				.filter("age", ">=", 18)
-				.sort("age", "ASC")
-				.fetch(5);
+        .filter("gender", "=", "male")
+        .filter("age", ">=", 18)
+        .sort("age", "ASC")
+        .fetch(5);
 
 To get properties of an *entity* use the following method:
 
-			person.getProperty("gender");
+    person.getProperty("gender");
 
 Finally, there are a couple of points to keep in mind when using the Datastore API:
 
