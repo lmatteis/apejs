@@ -132,8 +132,8 @@ You get an *entity* from the datastore by using a key:
 
 Listing more entities is done by using a query:
 
-		// selecting youngest 5 adult males as an array
-		var people = googlestore.query("person")
+    // selecting youngest 5 adult males as an array
+    var people = googlestore.query("person")
 		    .filter("gender", "male")
 				.filter("age", ">=", 18)
 				.sort("age", "ASC")
