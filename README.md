@@ -59,7 +59,7 @@ you access `http://yoursite.com/image.jpg` the server will look inside
 
 Note that in order to use the App Engine Storage API and other App Engine APIs
 you have to copy the `appengine-api-1.0-sdk-x.y.z.jar` file from the App
-Engine SDK to the `WEB-INF/lib/` directory.
+Engine SDK to the `WEB-INF/lib/` directory as `appengine-api-1.0-sdk.jar`.
 
 ## Importing external JS files
 
