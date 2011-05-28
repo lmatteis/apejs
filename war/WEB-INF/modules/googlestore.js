@@ -69,7 +69,7 @@ var googlestore = (function(){
         },
         query: function(kind) {
             var q = new Query(kind);
-            var options = FetchOptions.Builder;
+            var options = FetchOptions.Builder.withDefaults();
             var self;
             function addFilter(propertyName, operator, value) {
                 operator = filterOperators[operator] || operator;
@@ -81,12 +81,16 @@ var googlestore = (function(){
                 q.addSort(propertyName, Query.SortDirection[direction]);
                 return self;
             }
-            function withLimit(num) {
-                options = options.withLimit(num);
+            function limit(limit) {
+                options = options.limit(limit);
+                return self;
+            }
+            function offset(offset) {
+                options = options.offset(offset);
                 return self;
             }
             function fetch(num) {
-                if (num) withLimit(num);
+                if (num) limit(num);
                 var preparedQuery = googlestore.datastore.prepare(q);
                 return preparedQuery.asList(options).toArray();
             }
@@ -97,7 +101,8 @@ var googlestore = (function(){
             return self = {
                 filter : addFilter,
                 sort   : addSort,
-                limit  : withLimit,
+                limit  : limit,
+                offset : offset,
                 fetch  : fetch,
                 count  : count
             };
