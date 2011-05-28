@@ -106,19 +106,50 @@ JavaScript. To do this you can use `render()`:
 
 I'm trying to implement a really basic abstraction around the low-level Google
 datastore API. You can read the code under `WEB-INF/modules/googlestore.js`.
-
-To create an *entity* and store it in the datastore you do:
+In order to work with the datastore, first you need to include it in your file.
 
     require("googlestore.js");
+
+To create an *entity* and store it in the datastore you do:
 
     var e = googlestore.entity("person", {
         "name": "Luca",
         "age": 25,
+				"gender": "female",
         "nationality: "Italian"
     });
 
     // save the entity to the datastore
     var key = googlestore.put(e);
+
+You get an *entity* from the datastore by using a key:
+
+    // creating a key by ID
+    var key = googlestore.createKey("person", 15);
+
+    // get the entity from the datastore
+    var person = googlestore.get(key);
+
+Listing more entities is done by using a query:
+
+		// selecting youngest 5 adult males as an array
+		var people = googlestore.query("person")
+		    .filter("gender", "male")
+				.filter("age", ">=", 18)
+				.sort("age", "ASC")
+				.fetch(5);
+
+To get properties of an *entity* use the following method:
+
+			person.getProperty("gender");
+
+Finally, there are a couple of points to keep in mind when using the Datastore API:
+
+  - Filtering Or Sorting On a Property Requires That the Property Exists
+  - Inequality Filters Are Allowed on One Property Only
+  - Properties in Inequality Filters Must Be Sorted before Other Sort Orders
+
+http://code.google.com/intl/hu-HU/appengine/docs/java/datastore/queries.html
 
 
 *More to come ...*

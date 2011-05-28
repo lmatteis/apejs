@@ -1,1 +1,1 @@
-var skin = "<title>Header</title>";
+print("<title>Header</title>");
