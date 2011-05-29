@@ -4,70 +4,112 @@
  */
 importPackage(com.google.appengine.api.datastore);
 
-var googlestore = {
-    datastore: DatastoreServiceFactory.getDatastoreService(),
+var googlestore = (function(){
 
-    // creates a new entity
-    entity: function() {
-        if(arguments.length === 2) {
-            var kind = arguments[0],
-                data = arguments[1],
-                entity = new Entity(kind);
-        } else {
-            var kind = arguments[0],
-                keyName = arguments[1],
-                data = arguments[2],
-                entity = new Entity(kind, keyName);
-        }
+    // syntax sugar
+    var filterOperators = {
+        '<' : 'LESS_THAN',
+        '<=': 'LESS_THAN_OR_EQUAL',
+        '=' : 'EQUAL',
+        '>' : 'GREATER_THAN',
+        '>=': 'GREATER_THAN_OR_EQUAL',
+        '!=': 'NOT_EQUAL'
+    };
 
-        for(var i in data) {
-            // google's datastore doesn't like native arrays.
-            // it needs a Collection for properties with
-            // multiple values
-            if(data[i] instanceof Array)
-                data[i] = java.util.Arrays.asList(data[i]);
-            entity.setProperty(i, data[i]);
-        }
-        return entity;
-    },
-    set: function(entity, data) {
-        for(var i in data) {
-            if(data[i] instanceof Array)
-                data[i] = java.util.Arrays.asList(data[i]);
-            entity.setProperty(i, data[i]);
-        }
-    },
-    put: function(entity) {
-        return this.datastore.put(entity);
-    },
-    // mimics JDO functionality
-    get: function(key) {
-        if(!key)
-            return null;
-        var entity = this.datastore.get(key);
-        return entity;
-    },
-    del: function(key) {
-        this.datastore["delete"](key);
-    },
-    query: function(kind) {
-        var q = new Query(kind);
-        function addFilter(propertyName, filter, value) {
-            q.addFilter(propertyName, Query.FilterOperator.EQUAL, value);
-        }
-        function fetch(num) {
-            var preparedQuery = googlestore.datastore.prepare(q);
-            return preparedQuery.asList(FetchOptions.Builder.withLimit(num)).toArray();
-        }
-        return {
-            addFilter: addFilter,
-            fetch: fetch
-        };
+    var sortDirections = {
+        'ASC' : 'ASCENDING',
+        'DESC': 'DESCENDING'
+    };
 
-    },
-    // abstracting everything as possible
-    createKey: function(kind, id) {
-        return KeyFactory.createKey(kind, id);
-    }
+    return {
+        datastore: DatastoreServiceFactory.getDatastoreService(),
 
-};
+        // creates a new entity
+        entity: function() {
+            if(arguments.length === 2) {
+                var kind = arguments[0],
+                    data = arguments[1],
+                    entity = new Entity(kind);
+            } else {
+                var kind = arguments[0],
+                    keyName = arguments[1],
+                    data = arguments[2],
+                    entity = new Entity(kind, keyName);
+            }
+
+            for(var i in data) {
+                // google's datastore doesn't like native arrays.
+                // it needs a Collection for properties with
+                // multiple values
+                if(data[i] instanceof Array)
+                    data[i] = java.util.Arrays.asList(data[i]);
+                entity.setProperty(i, data[i]);
+            }
+            return entity;
+        },
+        set: function(entity, data) {
+            for(var i in data) {
+                if(data[i] instanceof Array)
+                    data[i] = java.util.Arrays.asList(data[i]);
+                entity.setProperty(i, data[i]);
+            }
+        },
+        put: function(entity) {
+            return this.datastore.put(entity);
+        },
+        // mimics JDO functionality
+        get: function(key) {
+            if(!key)
+                return null;
+            var entity = this.datastore.get(key);
+            return entity;
+        },
+        del: function(key) {
+            this.datastore["delete"](key);
+        },
+        query: function(kind) {
+            var q = new Query(kind);
+            var options = FetchOptions.Builder.withDefaults();
+            var self;
+            function filter(propertyName, operator, value) {
+                operator = filterOperators[operator] || operator;
+                q.addFilter(propertyName, Query.FilterOperator[operator], value);
+                return self;
+            }
+            function sort(propertyName, direction) {
+                direction = sortDirections[direction||"ASC"] || direction;
+                q.addSort(propertyName, Query.SortDirection[direction]);
+                return self;
+            }
+            function limit(limit) {
+                options = options.limit(limit);
+                return self;
+            }
+            function offset(offset) {
+                options = options.offset(offset);
+                return self;
+            }
+            function fetch(num) {
+                if (num) limit(num);
+                var preparedQuery = googlestore.datastore.prepare(q);
+                return preparedQuery.asList(options).toArray();
+            }
+            function count() {
+                var preparedQuery = googlestore.datastore.prepare(q);
+                return preparedQuery.countEntities(options);
+            }
+            return self = {
+                filter : filter,
+                sort   : sort,
+                limit  : limit,
+                offset : offset,
+                fetch  : fetch,
+                count  : count
+            };
+        },
+        // abstracting everything as possible
+        createKey: function(kind, id) {
+            return KeyFactory.createKey(kind, id);
+        }
+    };
+})();
