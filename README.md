@@ -143,7 +143,7 @@ To get properties of an *entity* use the following method:
 
     person.getProperty("gender");
 
-Finally, there are a couple of points to keep in mind when using the Datastore API:
+Finally, there are a couple of **key points** to keep in mind when using the *Datastore API*:
 
   - Filtering Or Sorting On a Property Requires That the Property Exists
   - Inequality Filters Are Allowed on One Property Only
