@@ -30,8 +30,8 @@ var test = {
     get: function(request, response) {
         try {
             var print = printer(response);
-                        print("<h1>Filtering and sorting</h1>");
-            print(render("./skins/listform.html"));
+            print("<h1>Filtering and sorting</h1>");
+            print(render("./skins/form.html"));
             var people = googlestore.query("Person").fetch();
             people.forEach(function(person){
                 require("./skins/person.js", {
@@ -49,7 +49,7 @@ var test = {
             var print = printer(response);
 
             print("<h1>Filtering and sorting</h1>");
-            print(render("./skins/listform.html"));
+            print(render("./skins/form.html"));
 
             // filter value can be string or number
             var filter_val = parseInt(param("filter_val"), 10);
