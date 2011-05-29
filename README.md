@@ -149,7 +149,7 @@ Finally, there are a couple of points to keep in mind when using the Datastore A
   - Inequality Filters Are Allowed on One Property Only
   - Properties in Inequality Filters Must Be Sorted before Other Sort Orders
 
-http://code.google.com/intl/hu-HU/appengine/docs/java/datastore/queries.html
+http://code.google.com/appengine/docs/java/datastore/queries.html
 
 
 *More to come ...*
