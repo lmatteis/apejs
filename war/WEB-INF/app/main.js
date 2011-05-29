@@ -30,7 +30,7 @@ var test = {
     get: function(request, response) {
         try {
             var print = printer(response);
-            print("<h1>Test</h1>");
+                        print("<h1>Filtering and sorting</h1>");
             print(render("./skins/listform.html"));
             var people = googlestore.query("Person").fetch();
             people.forEach(function(person){
@@ -48,7 +48,7 @@ var test = {
             var param = request.getParameter.bind(request);
             var print = printer(response);
 
-            print("<h1>Test</h1>");
+            print("<h1>Filtering and sorting</h1>");
             print(render("./skins/listform.html"));
 
             // filter value can be string or number
@@ -71,6 +71,11 @@ var test = {
                     "person": person
                 });
             });
+            
+            // Error message for empty result set
+            if (!people.length) {
+              print("No match.");
+            }
         } catch (e) {
             response.getWriter().println(e.getMessage());
         }
