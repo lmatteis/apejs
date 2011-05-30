@@ -20,7 +20,7 @@ body.error {
   text-decoration: none;
 }
 
-h1, h2, h3, h4, #sitetitle { color: #505461; font-family: 'Bangers'; }
+.logo, h1, h2, h3, h4, #sitetitle { color: #505461; font-family: 'Bangers'; }
 h2, h3, h4, #sitetitle { color: #4473C0; }
 
 h1 {
@@ -74,4 +74,12 @@ pre {
   padding: 10px;
   font-size: 95%;
   font-weight: bold;
+}
+.download {
+    float: right;
+}
+.logo {
+ color:#4473C0;
+    float: left;
+    font-size: 60px;
 }
