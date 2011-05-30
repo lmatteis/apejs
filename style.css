@@ -9,6 +9,7 @@ body {
   margin-top: 15px;
   font-size: 85%;
   background: #F3EFC5;
+background: #eee;
 }
 
 body.error {
@@ -30,8 +31,9 @@ h1 {
   padding: 10px 0;
 }
 
-h1 a { text-decoration: none; color: #505461; }
-h1 a:hover { text-decoration: none; color: #505461; }
+h1 a { text-decoration: none; color: #505461; color: #4473C0;}
+h1 a:hover { text-decoration: none; color: #4473C0; }
+h1 a:active { text-decoration: none; color: #4473C0; }
 
 body.index ol {
   font-family: 'Bangers';
@@ -50,6 +52,8 @@ pre {
   background: #E7E7E2;
   color: #000;
   padding: 10px;
+background: #ddd;
+color: #000;
   
 }
 
@@ -82,4 +86,16 @@ pre {
  color:#4473C0;
     float: left;
     font-size: 60px;
+    position: relative;
+color: #000;
+}
+.logo img {
+    position: absolute;
+    top: 63px;
+    left:39px;
+    z-index: -1;
+}
+
+#header {
+    height: 180px;
 }

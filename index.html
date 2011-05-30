@@ -4,29 +4,17 @@
   <meta charset='utf-8'>
 
   <title>lmatteis/apejs @ GitHub</title>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
 <link href='http://fonts.googleapis.com/css?family=Bangers' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" type="text/css" media="all" href="screen.css"/>
   <link rel="stylesheet" type="text/css" media="print" href="print.css"/>
   <link rel="stylesheet" type="text/css" media="screen" href="style.css"/>
-
-<script>
-$(function(){
-
-$.get("https://github.com/lmatteis/apejs/blob/master/README.md?slide=1&_=1306758184342", function(data) {
-    $("#content").html(data);
-});
-
-});
-
-</script>
 
 </head>
 
 <body>
     <div id="header" class="container">
         <a href="http://github.com/lmatteis/apejs"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
-        <div class="logo">ApeJS</div>
+        <div class="logo">ApeJS<img src="apejs.png" /></div>
         <div class="download">
           <a href="http://github.com/lmatteis/apejs/zipball/master">
             <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
@@ -36,6 +24,172 @@ $.get("https://github.com/lmatteis/apejs/blob/master/README.md?slide=1&_=1306758
     </div>
 
     <div id="content" class="container">
+<h1>A tiny JavaScript web framework targeted for <a href="http://code.google.com/appengine">Google App Engine</a></h1>
+
+<p>Prototyping applications is as easy as writing some JSON:</p>
+
+<pre><code>require("apejs.js");
+apejs.urls = {
+    "/": {
+        get: function(request, response) {
+            response.getWriter().println("Hello World!");
+        }
+    },
+    "/foo": {
+        get: function(request, response) {
+            request.getSession(true);
+        }
+    },
+    "/recipes/([a-zA-Z0-9_]+)" : {
+        get: function(request, response, matches) {
+            response.getWriter().println(matches[1]);
+        }
+    }
+}
+</code></pre>
+
+<p>Reaching <code>http://yoursite.com/</code> will output <code>Hello World!</code>, accessing
+<code>http://yoursite.com/foo</code> will start a new session and going to
+<code>http://yoursite.com/recipes/my-fantastic-recipe</code> will show you
+<code>my-fantastic-recipe</code>. </p>
+
+<p>You can leverage the entire Java API (Rhino) directly through <em>JavaScript</em>, avoiding re-compilation times in favor of
+raw scripting power!</p>
+
+<h2>Idea behind ApeJS</h2>
+
+<p>The idea behind ApeJS is to provide a tiny framework for developing Google App
+Engine websites using the JavaScript language. There are other JS
+frameworks out there that you could use with App Engine - <a href="http://ringojs.org">RingoJS</a> and
+<a href="http://www.appenginejs.org/">AppEngineJS</a> are extremely well made -
+but I needed something more simple, something that didn't come with tons of
+libraries and that could let me prototype applications really quickly (think of
+<a href="http://webpy.org">web.py</a>) and so I created ApeJS.</p>
+
+<h2>How to start</h2>
+
+<p>ApeJS works great with Google App Engine. All you have to do is run
+<code>dev_appserver.sh</code> (or .cmd) against the <code>war</code> directory. Next you can start
+writing code - the <em>only</em> directory you should work with is the <code>WEB-INF/app/</code>
+directory which basically contains all of your app-code. Ideally if you're
+starting a new open-source project that works with ApeJS you would only share
+the <code>app</code> dir. </p>
+
+<p>The main file you need to worry about is <code>main.js</code>. This is where all the
+handlers for specific urls are called. The examples already in there should get
+you started. </p>
+
+<p>An important folder you want to keep your eyes on is the <code>/public/</code> directory.
+All your static content should go in here, <em>stylesheets</em>, <em>images</em> etc. So when
+you access <code>http://yoursite.com/image.jpg</code> the server will look inside
+<code>WEB-INF/app/public/image.jpg</code> for it.</p>
+
+<p>Note that in order to use the App Engine Storage API and other App Engine APIs
+you have to copy the <code>appengine-api-1.0-sdk-x.y.z.jar</code> file from the App
+Engine SDK to the <code>WEB-INF/lib/</code> directory as <code>appengine-api-1.0-sdk.jar</code>.</p>
+
+<h2>Importing external JS files</h2>
+
+<p>Importing external JS files is quite easy thanks to <code>require()</code>. ApeJS is not
+compliant with <a href="http://www.commonjs.org/">CommonJS</a> simply because all the stuff that CommonJS comes
+with will not work on Google App Engine where no I/O operations are allowed for
+example.</p>
+
+<p>To include ApeJS modules (located under <code>WEB-INF/modules/</code>) you can do:</p>
+
+<pre><code>require("googlestore.js");
+</code></pre>
+
+<p>Otherwise you can include things from within your app directory by simply adding
+a <code>./</code> in front of the filename:</p>
+
+<pre><code>require("./myfile.js");
+</code></pre>
+
+<p><code>require()</code> will simply evaluate the contents of the JavaScript file in <code>global</code>
+context. So even if you run it inside a function, it's scope is still global. To
+control the scope from which the JavaScript is evaluated, you can pass a second
+parameter to the function, which is an object.</p>
+
+<pre><code>require("./myfile.js", { foo: "bar" });
+</code></pre>
+
+<p>And inside the <code>./myfile.js</code> you can access the <code>foo</code> property using the obvious
+<code>this.foo</code> syntax. So basically <code>this</code> becomes the object you pass as a second
+parameter to <code>require()</code>. If this doesn't make sense please leave a comment or
+send me an email.</p>
+
+<h2>Some templating</h2>
+
+<p>I thought a lot about templating and instead of re-implementing a language
+by-itself I wanted to keep it simple and have the ability to
+access files contents as strings and then manipulate them directly with
+JavaScript. To do this you can use <code>render()</code>:</p>
+
+<pre><code>var tmpl = render("./index.html")
+            .replace("{{title}}", title)
+            .replace("{{recipes}}, recipes);
+
+response.getWriter().println(tmpl);
+</code></pre>
+
+<h2>Google Datastore</h2>
+
+<p>I'm trying to implement a really basic abstraction around the low-level Google
+datastore API. You can read the code under <code>WEB-INF/modules/googlestore.js</code>.
+In order to work with the datastore, first you need to include it in your file.</p>
+
+<pre><code>require("googlestore.js");
+</code></pre>
+
+<p>To create an <em>entity</em> and store it in the datastore you do:</p>
+
+<pre><code>var e = googlestore.entity("person", {
+    "name": "Luca",
+    "age": 25,
+    "gender": "female",
+    "nationality: "Italian"
+});
+
+// save the entity to the datastore
+var key = googlestore.put(e);
+</code></pre>
+
+<p>You get an <em>entity</em> from the datastore by using a key:</p>
+
+<pre><code>// creating a key by ID
+var key = googlestore.createKey("person", 15);
+
+// get the entity from the datastore
+var person = googlestore.get(key);
+</code></pre>
+
+<p>Listing more <em>entities</em> is done by using a query:</p>
+
+<pre><code>// selecting youngest 5 adult males as an array
+var people = googlestore.query("person")
+    .filter("gender", "=", "male")
+    .filter("age", "&gt;=", 18)
+    .sort("age", "ASC")
+    .fetch(5);
+</code></pre>
+
+<p>To get properties of an <em>entity</em> use the following method:</p>
+
+<pre><code>person.getProperty("gender");
+</code></pre>
+
+<p>Finally, there are a couple of <strong>key points</strong> to keep in mind when using the <em>Datastore API</em>:</p>
+
+<ul>
+<li>Filtering Or Sorting On a Property Requires That the Property Exists</li>
+<li>Inequality Filters Are Allowed on One Property Only</li>
+<li>Properties in Inequality Filters Must Be Sorted before Other Sort Orders</li>
+</ul><p><a href="http://code.google.com/appengine/docs/java/datastore/queries.html">http://code.google.com/appengine/docs/java/datastore/queries.html</a></p>
+
+<p><em>More to come ...</em></p>
+
+
     </div><!--/content-->
 
     <div id="footer" class="container">
