@@ -20,7 +20,7 @@ body.error {
   text-decoration: none;
 }
 
-h1, h2, h3, h4, #sitetitle { color: #505461; font-family: 'Carter One'; }
+h1, h2, h3, h4, #sitetitle { color: #505461; font-family: 'Bangers'; }
 h2, h3, h4, #sitetitle { color: #4473C0; }
 
 h1 {
@@ -34,7 +34,7 @@ h1 a { text-decoration: none; color: #505461; }
 h1 a:hover { text-decoration: none; color: #505461; }
 
 body.index ol {
-  font-family: 'Carter One';
+  font-family: 'Bangers';
   font-size: 180%;
   color: #505461;
 }
