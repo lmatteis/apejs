@@ -1,4 +1,4 @@
-# A tiny JavaScript web framework targeted for Google App Engine
+# A tiny JavaScript web framework targeted for [Google App Engine](http://code.google.com/appengine)
 
 Prototyping applications is as easy as writing some JSON:
 
