@@ -33,6 +33,9 @@ var apejs = {
                 // read file contents into byte array
                 fileInputStream.read(b);
 
+                // let's cache it
+                response.setHeader("Cache-Control", "max-age=315360000");
+
                 response.setContentType(mimeType);
                 response.getOutputStream().write(b);
             } catch (e) {
