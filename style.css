@@ -98,4 +98,15 @@ color: #000;
 
 #header {
     height: 180px;
+    position: relative;
+}
+
+.contributors {
+    position: absolute;
+    bottom:0;
+    right:0;
+}
+.contributors img {
+    width: 20px;
+    height: 20px;
 }

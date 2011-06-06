@@ -14,6 +14,13 @@
 <script>
 $(function(){
 
+// get contributors
+$.getJSON("https://github.com/api/v2/json/repos/show/lmatteis/apejs/contributors?callback=?", function(data) {
+    $.each(data.contributors, function() {
+        $(".contributors").append('<a title="'+this.name+'" href="https://github.com/'+this.login+'"><img src="http://www.gravatar.com/avatar/'+this.gravatar_id+'?s=20&d=identicon&r=PG"></a>');
+    });
+});
+
 
 // get commits list of README.md so we can get the latest commit which is the first in the array
 $.getJSON("https://github.com/api/v2/json/commits/list/lmatteis/apejs/master/README.md?callback=?", function(data) {
@@ -42,15 +49,16 @@ $.getJSON("https://github.com/api/v2/json/commits/list/lmatteis/apejs/master/REA
 </head>
 
 <body>
-    <div id="header" class="container">
         <a href="http://github.com/lmatteis/apejs"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+    <div id="header" class="container">
         <div class="logo">ApeJS<img src="apejs.png" /></div>
         <div class="download">
-          <a href="http://github.com/lmatteis/apejs/zipball/master">
-            <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-          <a href="http://github.com/lmatteis/apejs/tarball/master">
-            <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+          <a href="http://github.com/lmatteis/apejs/zipball/master"><img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+          <a href="http://github.com/lmatteis/apejs/tarball/master"><img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
         </div>
+
+      <div class="contributors">
+      </div>
     </div>
 
     <div id="content" class="container">
