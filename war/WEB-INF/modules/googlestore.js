@@ -110,6 +110,37 @@ var googlestore = (function(){
         // abstracting everything as possible
         createKey: function(kind, id) {
             return KeyFactory.createKey(kind, id);
+        },
+
+        /**
+         * transforms an entity into a nice
+         * JavaScript object ready to be stringified
+         * so we don't have to call getProperty() all the time.
+         * this should be more generic. only supports values
+         * that are directly convertable into strings
+         * otherwise JSON won't show them
+         */
+        toJS: function(entity) {
+            var properties = entity.getProperties(),
+                entries = properties.entrySet().iterator();
+
+            var ret = {};
+            while(entries.hasNext()) {
+                var entry = entries.next(),
+                    key = entry.getKey(),
+                    value = entry.getValue();
+
+                if(value instanceof Text)
+                    value = value.getValue();
+
+                // putting an empty string in front of it
+                // casts it to a JavaScript string even if it's
+                // more of a complicated type
+                ret[key] = ""+value;
+            }
+
+            return ret;
         }
+
     };
 })();
