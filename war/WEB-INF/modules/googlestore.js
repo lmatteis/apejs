@@ -94,6 +94,11 @@ var googlestore = (function(){
                 var preparedQuery = googlestore.datastore.prepare(q);
                 return preparedQuery.asList(options).toArray();
             }
+            function fetchAsIterable(num) {
+                if (num) limit(num);
+                var preparedQuery = googlestore.datastore.prepare(q);
+                return preparedQuery.asIterable(options);
+            }
             function count() {
                 var preparedQuery = googlestore.datastore.prepare(q);
                 return preparedQuery.countEntities(options);
