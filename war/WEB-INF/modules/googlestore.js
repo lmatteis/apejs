@@ -109,6 +109,7 @@ var googlestore = (function(){
                 limit  : limit,
                 offset : offset,
                 fetch  : fetch,
+                fetchAsIterable  : fetchAsIterable,
                 count  : count
             };
         },
