@@ -81,6 +81,10 @@ var googlestore = (function(){
                 q.addSort(propertyName, Query.SortDirection[direction]);
                 return self;
             }
+            function setKeysOnly() {
+                q.setKeysOnly();
+                return self;
+            }
             function limit(limit) {
                 options = options.limit(limit);
                 return self;
@@ -94,6 +98,11 @@ var googlestore = (function(){
                 var preparedQuery = googlestore.datastore.prepare(q);
                 return preparedQuery.asList(options).toArray();
             }
+            function fetchAsIterable(num) {
+                if (num) limit(num);
+                var preparedQuery = googlestore.datastore.prepare(q);
+                return preparedQuery.asIterable(options);
+            }
             function count() {
                 var preparedQuery = googlestore.datastore.prepare(q);
                 return preparedQuery.countEntities(options);
@@ -101,9 +110,11 @@ var googlestore = (function(){
             return self = {
                 filter : filter,
                 sort   : sort,
+                setKeysOnly: setKeysOnly,
                 limit  : limit,
                 offset : offset,
                 fetch  : fetch,
+                fetchAsIterable : fetchAsIterable,
                 count  : count
             };
         },
