@@ -4,6 +4,8 @@
  */
 importPackage(com.google.appengine.api.datastore);
 
+require("memcache.js");
+
 var googlestore = (function(){
 
     // syntax sugar
@@ -55,6 +57,7 @@ var googlestore = (function(){
             }
         },
         put: function(entity) {
+            memcache.clearAll();
             return this.datastore.put(entity);
         },
         // mimics JDO functionality
@@ -65,11 +68,13 @@ var googlestore = (function(){
             return entity;
         },
         del: function(key) {
+            memcache.clearAll();
             this.datastore["delete"](key);
         },
         query: function(kind) {
             var q = new Query(kind);
             var options = FetchOptions.Builder.withDefaults();
+            var cacheKey = null;
             var self;
             function filter(propertyName, operator, value) {
                 operator = filterOperators[operator] || operator;
@@ -93,10 +98,24 @@ var googlestore = (function(){
                 options = options.offset(offset);
                 return self;
             }
+            function setCacheKey(key) {
+                cacheKey = key;
+                return self;
+            }
             function fetch(num) {
+                if(cacheKey) {
+                    var data = memcache.get(cacheKey);
+                    if(data) {
+                        //log("getting it from cache");
+                        return data;
+                    }
+                }
+                //log("getting it from datastore");
                 if (num) limit(num);
                 var preparedQuery = googlestore.datastore.prepare(q);
-                return preparedQuery.asList(options).toArray();
+                var ret = preparedQuery.asList(options).toArray();
+                memcache.put(cacheKey, ret);
+                return ret;
             }
             function fetchAsIterable(num) {
                 if (num) limit(num);
@@ -113,6 +132,7 @@ var googlestore = (function(){
                 setKeysOnly: setKeysOnly,
                 limit  : limit,
                 offset : offset,
+                setCacheKey: setCacheKey,
                 fetch  : fetch,
                 fetchAsIterable : fetchAsIterable,
                 count  : count
