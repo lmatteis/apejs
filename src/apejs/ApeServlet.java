@@ -24,31 +24,20 @@ public class ApeServlet extends HttpServlet {
     private static final ScriptEngineManager mgr = new ScriptEngineManager();
     private static boolean DEBUG;
     private static final Logger LOG = Logger.getLogger(ApeServlet.class.getSimpleName());
-    public static String PATH;
     public static String APP_PATH;
     public static ServletConfig CONFIG;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         CONFIG = config;
-        PATH = config.getServletContext().getRealPath(".");
-        PATH += "/WEB-INF"; // we don't want to expose the .js files
+        APP_PATH = config.getServletContext().getRealPath(".");
+        //PATH += "/WEB-INF"; // we don't want to expose the .js files
 
         String dbg = config.getInitParameter("debug");
         if ("true".equals(dbg))
                 DEBUG = true;
         if (DEBUG)
                 LOG.info("Log is enabled");
-
-
-        APP_PATH = config.getInitParameter("app");
-        if (APP_PATH != null && new File(PATH + "/"+ APP_PATH).exists())
-            APP_PATH = PATH + "/" + APP_PATH;
-        else
-            APP_PATH = PATH + "/app";
-
-        if (DEBUG)
-                LOG.info("the server side script path is :[" + PATH + "]");
     }
 
     public void service(ServletRequest request, ServletResponse response)
@@ -103,7 +92,7 @@ public class ApeServlet extends HttpServlet {
                 f = new File(ApeServlet.APP_PATH + "/" + filename);
             } else {
                 // otherwise just look in modules
-                f = new File(ApeServlet.PATH + "/modules/" + filename);
+                f = new File(ApeServlet.APP_PATH + "/WEB-INF/modules/" + filename);
             }
             if(args.length == 2) thisObj = (Scriptable)args[1];
             cx.evaluateReader(thisObj, new InputStreamReader(new FileInputStream(f), "ISO-8859-1"), filename, 1, null);
