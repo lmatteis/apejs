@@ -17,6 +17,9 @@ Prototyping applications is as easy as writing some JSON:
         "/recipes/([a-zA-Z0-9_]+)" : {
             get: function(request, response, matches) {
                 response.getWriter().println(matches[1]);
+            },
+            post: function(request, response) {
+                // do something during POST request
             }
         }
     }
@@ -41,25 +44,26 @@ libraries and that could let me prototype applications really quickly (think of
 
 ## How to start
 
-ApeJS works great with Google App Engine. All you have to do is run
-`dev_appserver.sh` (or .cmd) against the `war` directory. Next you can start
-writing code - the *only* directory you should work with is the `WEB-INF/app/`
-directory which basically contains all of your app-code. Ideally if you're
-starting a new open-source project that works with ApeJS you would only share
-the `app` dir. 
+1. Clone ApeJS by simply typing `git clone git@github.com:lmatteis/apejs.git` in a terminal.
 
-The main file you need to worry about is `main.js`. This is where all the
+2. Download the latest **App Engine Java SDK** from the App Engine website. Unzip,
+open the folder and navigate to the `lib/user/` directory where you will find an
+`appengine-api-1.0-sdk-x.x.x.jar` file. Copy this *jar* file to the your 
+`war/WEB-INF/lib` directory from within the ApeJS dir we cloned in the earlier
+step.
+
+3. You're pretty much set. All you have to do is run
+`dev_appserver.sh` (or .cmd, found in the App Engine Java SDK) against the `war`
+directory of your ApeJS project. 
+
+4. The main file you need to worry about is `main.js`. This is where all the
 handlers for specific urls are called. The examples already in there should get
 you started. 
 
-An important folder you want to keep your eyes on is the `/public/` directory.
+5. An important folder you want to keep your eyes on is the `/public/` directory.
 All your static content should go in here, *stylesheets*, *images* etc. So when
 you access `http://yoursite.com/image.jpg` the server will look inside
-`WEB-INF/app/public/image.jpg` for it.
-
-Note that in order to use the App Engine Storage API and other App Engine APIs
-you have to copy the `appengine-api-1.0-sdk-x.y.z.jar` file from the App
-Engine SDK to the `WEB-INF/lib/` directory as `appengine-api-1.0-sdk.jar`.
+`/public/image.jpg` for it.
 
 ## Importing external JS files
 

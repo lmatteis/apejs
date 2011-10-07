@@ -21,27 +21,7 @@ var apejs = {
             }
         }
 
-        if(!matchedUrl) { // try accessing static content inside APP_PATH/public
-            try {
-                // FIXME - this is really ugly - find other way to get servlet Context
-                var mimeType = ApeServlet.CONFIG.getServletContext().getMimeType(path);
-                var resPath = ApeServlet.APP_PATH+"/public"+path;
-                var res = new File(resPath);
-                // create an array of bytes as big as the file
-                var b = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, res.length()); 
-                var fileInputStream = new FileInputStream(res);
-                // read file contents into byte array
-                fileInputStream.read(b);
-
-                // let's cache it
-                response.setHeader("Cache-Control", "max-age=315360000");
-
-                response.setContentType(mimeType);
-                response.getOutputStream().write(b);
-            } catch (e) {
-                // send 404
-                response.sendError(response.SC_NOT_FOUND);
-            }
-        }
+        if(!matchedUrl)
+            return response.sendError(response.SC_NOT_FOUND);
     }
 };

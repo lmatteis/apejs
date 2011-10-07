@@ -57,7 +57,6 @@ var googlestore = (function(){
             }
         },
         put: function(entity) {
-            memcache.clearAll();
             return this.datastore.put(entity);
         },
         // mimics JDO functionality
@@ -68,7 +67,6 @@ var googlestore = (function(){
             return entity;
         },
         del: function(key) {
-            memcache.clearAll();
             this.datastore["delete"](key);
         },
         query: function(kind) {
