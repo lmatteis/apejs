@@ -2,7 +2,6 @@ require("apejs.js");
 require("googlestore.js");
 
 // we want to do something before, or after
-
 var index = {
     get: function(request, response) {
         var print = printer(response);
