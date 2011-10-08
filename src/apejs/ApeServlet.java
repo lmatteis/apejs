@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.mozilla.javascript.*;
 
+import com.google.appengine.api.utils.*;
+
 public class ApeServlet extends HttpServlet {
 
     private static final long serialVersionUID = 7313374L;
@@ -29,7 +31,9 @@ public class ApeServlet extends HttpServlet {
 
     private ScriptableObject global;
     private ScriptableObject apejsScope;
-    
+    private String mainFileName;
+    private File mainFile;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         CONFIG = config;
@@ -43,8 +47,8 @@ public class ApeServlet extends HttpServlet {
                 LOG.info("Log is enabled");
         Context context = Context.enter();
         try {
-            String mainFileName = "main.js";
-            File f = new File(APP_PATH + "/" + mainFileName);
+            mainFileName = "main.js";
+            mainFile = new File(APP_PATH + "/" + mainFileName);
 
             // using this instead of context.initStandardObjects()
             // so importPackage works
@@ -61,7 +65,7 @@ public class ApeServlet extends HttpServlet {
             Object wrappedOut = context.javaToJS(this, global);
             ScriptableObject.putProperty(global, "ApeServlet", wrappedOut);
 
-            context.evaluateReader(global, new InputStreamReader(new FileInputStream(f), "ISO-8859-1"), mainFileName, 1, null);
+            context.evaluateReader(global, new InputStreamReader(new FileInputStream(mainFile), "ISO-8859-1"), mainFileName, 1, null);
 
             // get the apejs object scope
             apejsScope = (ScriptableObject)global.get("apejs", global);
@@ -79,6 +83,13 @@ public class ApeServlet extends HttpServlet {
             HttpServletRequest req = (HttpServletRequest) request;
             HttpServletResponse res = (HttpServletResponse) response;
             res.setContentType("text/html");
+            
+            // if we're in development mode, recompile the JavaScript
+            // to see the changes without restarting the server everytime.
+            // to do this we can just run init() again - hacky? XXX
+            if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
+                init(CONFIG);
+            }
 
             // get the run function from the scope above
             Function fct = (Function)apejsScope.get("run", apejsScope);
