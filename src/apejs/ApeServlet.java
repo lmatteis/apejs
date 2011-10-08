@@ -27,6 +27,9 @@ public class ApeServlet extends HttpServlet {
     public static String APP_PATH;
     public static ServletConfig CONFIG;
 
+    private ScriptableObject global;
+    private ScriptableObject apejsScope;
+    
     @Override
     public void init(ServletConfig config) throws ServletException {
         CONFIG = config;
@@ -38,22 +41,14 @@ public class ApeServlet extends HttpServlet {
                 DEBUG = true;
         if (DEBUG)
                 LOG.info("Log is enabled");
-    }
-
-    public void service(ServletRequest request, ServletResponse response)
-                    throws ServletException, IOException {
         Context context = Context.enter();
         try {
-            HttpServletRequest req = (HttpServletRequest) request;
-            HttpServletResponse res = (HttpServletResponse) response;
-            res.setContentType("text/html");
-
             String mainFileName = "main.js";
             File f = new File(APP_PATH + "/" + mainFileName);
 
             // using this instead of context.initStandardObjects()
             // so importPackage works
-            ScriptableObject global = new ImporterTopLevel(context);
+            global = new ImporterTopLevel(context);
 
             // add the global "names" like require
             String[] names = new String[] {
@@ -69,14 +64,26 @@ public class ApeServlet extends HttpServlet {
             context.evaluateReader(global, new InputStreamReader(new FileInputStream(f), "ISO-8859-1"), mainFileName, 1, null);
 
             // get the apejs object scope
-            ScriptableObject apejsScope = (ScriptableObject)global.get("apejs", global);
+            apejsScope = (ScriptableObject)global.get("apejs", global);
+        } catch (IOException e) {
+            throw new ServletException(e);
+        } finally {
+            Context.exit();
+        }
+    }
+
+    public void service(ServletRequest request, ServletResponse response)
+                    throws ServletException, IOException {
+        Context context = Context.enter();
+        try {
+            HttpServletRequest req = (HttpServletRequest) request;
+            HttpServletResponse res = (HttpServletResponse) response;
+            res.setContentType("text/html");
+
             // get the run function from the scope above
             Function fct = (Function)apejsScope.get("run", apejsScope);
             // run the run function 
             Object result = fct.call(context, global, apejsScope, new Object[] {req, res});
-
-        } catch (IOException e) {
-            throw new ServletException(e);
         } finally {
             Context.exit();
         }
