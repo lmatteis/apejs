@@ -20,55 +20,16 @@ import org.mozilla.javascript.*;
 import com.google.appengine.api.utils.*;
 
 public class ApeServlet extends HttpServlet {
-
-    private static final long serialVersionUID = 7313374L;
-
-    private static final ScriptEngineManager mgr = new ScriptEngineManager();
-    private static boolean DEBUG;
-    private static final Logger LOG = Logger.getLogger(ApeServlet.class.getSimpleName());
     public static String APP_PATH;
-    public static ServletConfig CONFIG;
 
     private ScriptableObject global;
-    private ScriptableObject apejsScope;
-    private String mainFileName;
-    private File mainFile;
 
-    @Override
     public void init(ServletConfig config) throws ServletException {
-        CONFIG = config;
+        super.init(config);
         APP_PATH = config.getServletContext().getRealPath(".");
-        //PATH += "/WEB-INF"; // we don't want to expose the .js files
-
-        String dbg = config.getInitParameter("debug");
-        if ("true".equals(dbg))
-                DEBUG = true;
-        if (DEBUG)
-                LOG.info("Log is enabled");
         Context context = Context.enter();
         try {
-            mainFileName = "main.js";
-            mainFile = new File(APP_PATH + "/" + mainFileName);
-
-            // using this instead of context.initStandardObjects()
-            // so importPackage works
-            global = new ImporterTopLevel(context);
-
-            // add the global "names" like require
-            String[] names = new String[] {
-                "require",
-                "render" 
-            };
-            global.defineFunctionProperties(names, ApeServlet.class, ScriptableObject.DONTENUM);
-
-            // set the ApeServlet context
-            Object wrappedOut = context.javaToJS(this, global);
-            ScriptableObject.putProperty(global, "ApeServlet", wrappedOut);
-
-            context.evaluateReader(global, new InputStreamReader(new FileInputStream(mainFile), "ISO-8859-1"), mainFileName, 1, null);
-
-            // get the apejs object scope
-            apejsScope = (ScriptableObject)global.get("apejs", global);
+            global = initGlobalContext(context);
         } catch (IOException e) {
             throw new ServletException(e);
         } finally {
@@ -83,22 +44,43 @@ public class ApeServlet extends HttpServlet {
             HttpServletRequest req = (HttpServletRequest) request;
             HttpServletResponse res = (HttpServletResponse) response;
             res.setContentType("text/html");
+
+            ScriptableObject global = this.global;
             
-            // if we're in development mode, recompile the JavaScript
-            // to see the changes without restarting the server everytime.
-            // to do this we can just run init() again - hacky? XXX
-            if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
-                init(CONFIG);
+            // if we're in development mode, recompile the JavaScript everytime
+            if(SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
+                global = initGlobalContext(context); 
             }
 
-            // get the run function from the scope above
+            // get the "run" function from the apejs scope and run it
+            ScriptableObject apejsScope = (ScriptableObject)global.get("apejs", global);
             Function fct = (Function)apejsScope.get("run", apejsScope);
-            // run the run function 
             Object result = fct.call(context, global, apejsScope, new Object[] {req, res});
         } finally {
             Context.exit();
         }
-    };
+    }
+
+    /**
+     * Evaluates main.js, starts the global scope and defines somes global JS functions
+     */
+    private ScriptableObject initGlobalContext(Context context) throws IOException { 
+        String mainFileName = "main.js";
+        File mainFile = new File(APP_PATH + "/" + mainFileName);
+
+        // overwrite the global so each requests nows which context we're in
+        ScriptableObject global = new ImporterTopLevel(context);
+
+        // add the global "names" like require
+        String[] names = new String[] {
+            "require",
+            "render" 
+        };
+        global.defineFunctionProperties(names, ApeServlet.class, ScriptableObject.DONTENUM);
+
+        context.evaluateReader(global, new InputStreamReader(new FileInputStream(mainFile), "ISO-8859-1"), mainFileName, 1, null);
+        return global;
+    }
 
     public static void require(Context cx, Scriptable thisObj, Object[] args, Function funObj) throws ServletException {
         try {
@@ -142,19 +124,11 @@ public class ApeServlet extends HttpServlet {
     }
 
     static public String getContents(File aFile) throws IOException, ServletException {
-        //...checks on aFile are elided
         StringBuilder contents = new StringBuilder();
-
         try {
-            //use buffering, reading one line at a time
-            //FileReader always assumes default encoding is OK!
             BufferedReader input =  new BufferedReader(new FileReader(aFile));
             try {
-                String line = null; //not declared within while loop
-                // readLine is a bit quirky :
-                // it returns the content of a line MINUS the newline.
-                // it returns null only for the END of the stream.
-                // it returns an empty String if two newlines appear in a row.
+                String line = null;
                 while (( line = input.readLine()) != null){
                     contents.append(line);
                     contents.append(System.getProperty("line.separator"));
@@ -165,8 +139,6 @@ public class ApeServlet extends HttpServlet {
         } catch (IOException e){
             throw new ServletException(e);
         }
-
         return contents.toString();
     }
-    
 }
