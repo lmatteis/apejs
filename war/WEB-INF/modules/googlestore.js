@@ -112,7 +112,8 @@ var googlestore = (function(){
                 if (num) limit(num);
                 var preparedQuery = googlestore.datastore.prepare(q);
                 var ret = preparedQuery.asList(options).toArray();
-                memcache.put(cacheKey, ret);
+                if(cacheKey)
+                    memcache.put(cacheKey, ret);
                 return ret;
             }
             function fetchAsIterable(num) {
