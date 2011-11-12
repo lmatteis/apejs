@@ -126,7 +126,9 @@ public class ApeServlet extends HttpServlet {
     static public String getContents(File aFile) throws IOException, ServletException {
         StringBuilder contents = new StringBuilder();
         try {
-            BufferedReader input =  new BufferedReader(new FileReader(aFile));
+            BufferedReader input =  new BufferedReader(
+              new InputStreamReader(new FileInputStream(aFile), "UTF8")
+            );
             try {
                 String line = null;
                 while (( line = input.readLine()) != null){
