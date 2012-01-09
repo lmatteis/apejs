@@ -68,7 +68,7 @@ public class ApeServlet extends HttpServlet {
         String mainFileName = "main.js";
         File mainFile = new File(APP_PATH + "/" + mainFileName);
 
-        // overwrite the global so each requests nows which context we're in
+        // overwrite the global so each requests knows which context we're in
         ScriptableObject global = new ImporterTopLevel(context);
 
         // add the global "names" like require
@@ -77,12 +77,14 @@ public class ApeServlet extends HttpServlet {
             "render" 
         };
         global.defineFunctionProperties(names, ApeServlet.class, ScriptableObject.DONTENUM);
-
+        
+        // compile main.js
         context.evaluateReader(global, new InputStreamReader(new FileInputStream(mainFile), "ISO-8859-1"), mainFileName, 1, null);
         return global;
     }
 
-    public static void require(Context cx, Scriptable thisObj, Object[] args, Function funObj) throws ServletException {
+    public static ScriptableObject require(Context cx, Scriptable thisObj, Object[] args, Function funObj) throws ServletException {
+        Scriptable obj; 
         try {
             // if the args[0] starts with a dot look inside the current APP_PATH
             String filename = (String)args[0];
@@ -94,11 +96,18 @@ public class ApeServlet extends HttpServlet {
                 // otherwise just look in modules
                 f = new File(ApeServlet.APP_PATH + "/WEB-INF/modules/" + filename);
             }
-            if(args.length == 2) thisObj = (Scriptable)args[1];
-            cx.evaluateReader(thisObj, new InputStreamReader(new FileInputStream(f), "ISO-8859-1"), filename, 1, null);
+            // create a new "exports" scope and pass it in
+            obj = cx.newObject(thisObj);
+            obj.setParentScope(thisObj); // not sure what this does (i think it's for importPackage to work)
+            ScriptableObject.putProperty(obj, "exports", cx.newObject(obj));
+            
+            cx.evaluateReader(obj, new InputStreamReader(new FileInputStream(f), "ISO-8859-1"), filename, 1, null);
+
         } catch (IOException e) {
             throw new ServletException(e);
         }
+        // now that we evaluated the file, get the "exports" variable and return it
+        return (ScriptableObject)ScriptableObject.getProperty(obj, "exports");
     }
 
     public static String render(Context cx, Scriptable thisObj, Object[] args, Function funObj) throws ServletException {

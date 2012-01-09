@@ -2,7 +2,7 @@
 
 Prototyping applications is as easy as writing some JSON:
 
-    require("apejs.js");
+    var apejs = require("apejs.js");
     apejs.urls = {
         "/": {
             get: function(request, response) {
@@ -67,44 +67,24 @@ you access `http://yoursite.com/image.jpg` the server will look inside
 
 ## Importing external JS files
 
-Importing external JS files is quite easy thanks to `require()`. ApeJS is not
-compliant with [CommonJS](http://www.commonjs.org/) simply because all the stuff that CommonJS comes
-with will not work on Google App Engine where no I/O operations are allowed for
-example.
+Importing external JS files is quite easy thanks to `require()`.
 
 To include ApeJS modules (located under `WEB-INF/modules/`) you can do:
 
-    require("googlestore.js");
+    var googlestore = require("googlestore.js");
 
 Otherwise you can include things from within your app directory by simply adding
 a `./` in front of the filename:
 
-    require("./myfile.js");
+    var myfile = require("./myfile.js");
 
-`require()` will simply evaluate the contents of the JavaScript file in `global`
-context. So even if you run it inside a function, it's scope is still global. To
-control the scope from which the JavaScript is evaluated, you can pass a second
-parameter to the function, which is an object.
-
-    require("./myfile.js", { foo: "bar" });
-
-And inside the `./myfile.js` you can access the `foo` property using the obvious
-`this.foo` syntax. So basically `this` becomes the object you pass as a second
-parameter to `require()`. If this doesn't make sense please leave a comment or
-send me an email.
+`require()` will simply evaluate the contents of the JavaScript file and only expose
+whatever you assign `exports` with. This is how CommonJS implements so you could simply
+require CommonJS modules and they should work.
 
 ## Some templating
 
-I thought a lot about templating and instead of re-implementing a language
-by-itself I wanted to keep it simple and have the ability to
-access files contents as strings and then manipulate them directly with
-JavaScript. To do this you can use `render()`:
-
-    var tmpl = render("./index.html")
-                .replace("{{title}}", title)
-                .replace("{{recipes}}, recipes);
-
-    response.getWriter().println(tmpl);
+*will add some examples using mustache.js*
 
 ## Google Datastore
 

@@ -1,6 +1,6 @@
 <project>
     <!-- appengine gives us all the servlet api -->
-    <property name="sdk.dir" location="/Users/lucamatteis/Downloads/appengine-java-sdk-1.5.4/" />
+    <property name="sdk.dir" location="/Users/lucamatteis/Downloads/appengine-java-sdk-1.6.1/" />
 
     <import file="${sdk.dir}/config/user/ant-macros.xml" />
 
