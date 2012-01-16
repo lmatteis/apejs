@@ -12,3 +12,4 @@ var memcache = {
         this.memcacheService.clearAll();
     }
 };
+exports = memcache;

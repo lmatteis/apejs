@@ -25,3 +25,4 @@ var apejs = {
             return response.sendError(response.SC_NOT_FOUND);
     }
 };
+exports = apejs;

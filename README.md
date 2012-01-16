@@ -92,7 +92,7 @@ I'm trying to implement a really basic abstraction around the low-level Google
 datastore API. You can read the code under `WEB-INF/modules/googlestore.js`.
 In order to work with the datastore, first you need to include it in your file.
 
-    require("googlestore.js");
+    var googlestore = require("googlestore.js");
 
 To create an *entity* and store it in the datastore you do:
 
