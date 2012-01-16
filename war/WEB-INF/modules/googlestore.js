@@ -160,7 +160,17 @@ var googlestore = (function(){
                     key = entry.getKey(),
                     value = entry.getValue();
 
-                if(value instanceof Text) {
+                if(value instanceof BlobKey) {
+                    // get metadata
+                    var blobInfo = new BlobInfoFactory().loadBlobInfo(value),
+                        contentType = blobInfo.getContentType();
+                    // based on the mime type we need to figure out which image to show
+                    if(!contentType.startsWith("image")) { // default to plain text
+                        value = "<a target='_blank' href='/serve/"+value.getKeyString()+"'>"+blobInfo.getFilename()+"</a>";
+                    } else {
+                        value = "<a target='_blank' href='/serve/"+value.getKeyString()+"'><img src='/serve/"+value.getKeyString()+"' /></a>";
+                    }
+                } else if(value instanceof Text) {
                     value = value.getValue();
                 }
 
