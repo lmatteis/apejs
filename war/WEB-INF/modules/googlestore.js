@@ -112,8 +112,10 @@ var googlestore = (function(){
                 if (num) limit(num);
                 var preparedQuery = googlestore.datastore.prepare(q);
                 var ret = preparedQuery.asList(options).toArray();
-                if(cacheKey)
-                    memcache.put(cacheKey, ret);
+                if(cacheKey) {
+                    // expire after 2 hours (7200 seconds)
+                    memcache.put(cacheKey, ret, 7200);
+                }
                 return ret;
             }
             function fetchAsIterable(num) {
