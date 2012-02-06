@@ -73,6 +73,7 @@ var googlestore = (function(){
             var q = new Query(kind);
             var options = FetchOptions.Builder.withDefaults();
             var cacheKey = null;
+            var expireSecs = null;
             var self;
             function filter(propertyName, operator, value) {
                 operator = filterOperators[operator] || operator;
@@ -96,8 +97,9 @@ var googlestore = (function(){
                 options = options.offset(offset);
                 return self;
             }
-            function setCacheKey(key) {
+            function setCacheKey(key, secs) {
                 cacheKey = key;
+                if(secs) expireSecs = secs;
                 return self;
             }
             function fetch(num) {
@@ -113,8 +115,11 @@ var googlestore = (function(){
                 var preparedQuery = googlestore.datastore.prepare(q);
                 var ret = preparedQuery.asList(options).toArray();
                 if(cacheKey) {
-                    // expire after 2 hours (7200 seconds)
-                    memcache.put(cacheKey, ret, 7200);
+                    // expire after expireSecs if it exists
+                    if(expireSecs) 
+                      memcache.put(cacheKey, ret, expireSecs);
+                    else 
+                      memcache.put(cacheKey, ret);
                 }
                 return ret;
             }
