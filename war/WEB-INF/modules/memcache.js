@@ -11,7 +11,10 @@ var memcache = {
      * seconds: after how many seconds this cache will expire
      */
     put: function(key, value, seconds) {
-        return this.memcacheService.put(key, value, Expiration.byDeltaSeconds(seconds));
+        if(seconds)
+            return this.memcacheService.put(key, value, Expiration.byDeltaSeconds(seconds));
+        else
+            return this.memcacheService.put(key, value);
     },
     clearAll: function() {
         this.memcacheService.clearAll();
