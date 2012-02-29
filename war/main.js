@@ -1,30 +1,8 @@
-require("apejs.js");
-require("googlestore.js");
+var apejs = require("apejs.js");
+var select = require("select.js");
 
-// we want to do something before, or after
-var index = {
-    get: function(request, response) {
-        var print = printer(response);
-        try {
-            // you can pass any printer function to an included file
-            // it can be a real print with access to the output,
-            // or a simple buffer that is handled from the parent file
-            require("./skins/index.js", { "print": print });
-        } catch (e) {
-            response.getWriter().println(e.getMessage());
-        }
-    },
-    post: function(request, response) {
-        var person = googlestore.entity("Person", {
-            "name"  : request.getParameter("name"),
-            "gender": request.getParameter("gender"),
-            "age":    parseInt(request.getParameter("age"), 10)
-        });
-        // FIXME - abstract put so it uses transactions
-        googlestore.put(person);
-        response.sendRedirect("/");
-    }
-};
+var mustache = require("./common/mustache.js");
+
 var test = {
     get: function(request, response) {
         try {
@@ -103,7 +81,31 @@ var del = {
 }
 
 apejs.urls = {
-    "/": index,
+    "/": {
+        get: function(request, response) {
+            select("person").
+                find(1).
+                each(function() {
+                    print(response).text(this.getProperty("name") + " ciao <br>");
+                });
+            var html = mustache.to_html(render("skins/index.html"));
+            print(response).text(html);
+        },
+        post: function(request, response) {
+            select('person').
+                add({ name: "Luca Matteis" });
+            /*
+            var person = googlestore.entity("Person", {
+                "name"  : request.getParameter("name"),
+                "gender": request.getParameter("gender"),
+                "age":    parseInt(request.getParameter("age"), 10)
+            });
+            // FIXME - abstract put so it uses transactions
+            googlestore.put(person);
+            response.sendRedirect("/");
+            */
+        }
+    },
     "/test" : test,
     "/person/([a-zA-Z0-9_]+)" : person,
     "/delete/([0-9]+)" : del
@@ -111,7 +113,10 @@ apejs.urls = {
 
 
 // simple syntax sugar
-function printer(response) {
-    var writer = response.getWriter();
-    return writer.print.bind(writer);
+function print(response) {
+    return {
+        text: function(text) {
+            response.getWriter().println(text);
+        }
+    };
 }
