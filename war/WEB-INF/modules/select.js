@@ -43,13 +43,21 @@ select.fn = {
     add: function(record) {
         var entity = new Entity(this.kind);
         for(var i in record) {
+            var value = record[i];
             // google's datastore doesn't like native arrays.
             // it needs a Collection for properties with
             // multiple values
-            if(record[i] instanceof Array)
-                record[i] = java.util.Arrays.asList(record[i]);
+            if(this.isArray(value)) {
+                value = java.util.Arrays.asList(value);
+            } else if(this.isObject(value)) {
+                value = JSON.stringify(value);
+            }
 
-            entity.setProperty(i, record[i]);
+            if(value instanceof java.lang.String || typeof value === "string") {
+                value = new Text(value);
+            }
+
+            entity.setProperty(i, value);
         }
         this.datastore.put(entity);
     },
@@ -198,20 +206,32 @@ select.fn = {
                 value = value.getValue();
             }
 
-            // putting an empty string in front of it
-            // casts it to a JavaScript string even if it's
-            // more of a complicated type
-            ret[key] = ""+value;
+            if(value instanceof java.util.List) {
+                // this is how we convert Java Lists into JavaScript native arrays
+                ret[key] = org.mozilla.javascript.NativeArray(value.toArray());
+            } else {
+                // putting an empty string in front of it
+                // casts it to a JavaScript string even if it's
+                // more of a complicated type
+                ret[key] = ""+value;
+            }
 
             // always try to parse this string to see if it's valid JSON
             try {
-              ret[key] = JSON.parse(value);
+                if(typeof ret[key] === "string")
+                    ret[key] = JSON.parse(value);
             } catch(e) {
               // not valid JSON - don't do anything
             }
         }
 
         return ret;
-    }
+    },
+    isArray: function( obj ) {
+        return toString.call(obj) === "[object Array]";
+    },
+    isObject: function( obj ) {
+        return toString.call(obj) === "[object Object]";
+    } 
 };
 exports = select;

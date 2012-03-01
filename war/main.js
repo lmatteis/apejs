@@ -83,6 +83,8 @@ var del = {
 apejs.urls = {
     "/": {
         get: function(request, response) {
+            var p = param(request);
+
             var people = [];
             select("person").
                 find().
@@ -92,7 +94,8 @@ apejs.urls = {
                     people.push({
                         id: id,
                         name: this["name"],
-                        age: this["age"]
+                        age: this["age"],
+                        jobs: this["jobs"]
                     });
                 });
 
@@ -100,11 +103,15 @@ apejs.urls = {
             print(response).text(html);
         },
         post: function(request, response) {
+            var p = param(request);
+
             select('person').
                 add({
-                    "name"  : request.getParameter("name"),
-                    "gender": request.getParameter("gender"),
-                    "age":    parseInt(request.getParameter("age"), 10)
+                    "name"  : p("name"),
+                    "gender": p("gender"),
+                    "age":    parseInt(p("age"), 10),
+                    "jobs":   ["fanner", "fut", "fab"],
+                    "json":   {"foo":"bar"}
                 });
             response.sendRedirect("/");
         }
@@ -119,7 +126,14 @@ apejs.urls = {
 function print(response) {
     return {
         text: function(text) {
-            response.getWriter().println(text);
+            if(text) response.getWriter().println(text);
         }
     };
+}
+function param(request) {
+    return function(par) {
+        var p = request.getParameter(par);
+        if(p) return p;
+        else return false;
+    }
 }

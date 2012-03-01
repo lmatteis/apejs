@@ -10,4 +10,8 @@ See the other test page for <a href='/test'>filtering and sorting</a>.<br><br>
 
 {{#people}}
 {{name}} - {{age}}<br>
+{{#jobs}}
+Job: {{.}}<br>
+{{/jobs}}
+<br><br>
 {{/people}}
