@@ -99,8 +99,10 @@ select.fn = {
      * @returns {Object} The current `select` object
      */
     sort: function(propertyName, direction) {
-        direction = this.sortDirections[direction||"ASC"] || direction;
-        this.query.addSort(propertyName, Query.SortDirection[direction]);
+        if(this.query) {
+            direction = this.sortDirections[direction||"ASC"] || direction;
+            this.query.addSort(propertyName, Query.SortDirection[direction]);
+        }
         return this;
     },
 
@@ -155,8 +157,61 @@ select.fn = {
         }
 
         for(var i=0; i<this.results.length; i++) {
-            fn.call(this.results[i]);
+            var ent = this.results[i];
+            fn.call(this.toJS(ent), ent.getKey().getId());
         }
+    },
+
+    /**
+     * Transforms an entity into a nice
+     * JavaScript object ready to be stringified
+     * so we don't have to call getProperty() all the time.
+     * this should be more generic. only supports values
+     * that are directly convertable into strings
+     * otherwise JSON won't show them.
+     *
+     * This should be private :(
+     *
+     * Also should convert all these types: http://code.google.com/appengine/docs/java/datastore/entities.html#Properties_and_Value_Types
+     */
+    toJS: function(entity) {
+        var properties = entity.getProperties(),
+            entries = properties.entrySet().iterator();
+
+        var ret = {};
+        while(entries.hasNext()) {
+            var entry = entries.next(),
+                key = entry.getKey(),
+                value = entry.getValue();
+
+            if(value instanceof com.google.appengine.api.blobstore.BlobKey) {
+                // get metadata
+                var blobInfo = new BlobInfoFactory().loadBlobInfo(value),
+                    contentType = blobInfo.getContentType();
+                // based on the mime type we need to figure out which image to show
+                if(!contentType.startsWith("image")) { // default to plain text
+                    value = "<a target='_blank' href='/serve/"+value.getKeyString()+"'>"+blobInfo.getFilename()+"</a>";
+                } else {
+                    value = "<a target='_blank' href='/serve/"+value.getKeyString()+"'><img src='/serve/"+value.getKeyString()+"' /></a>";
+                }
+            } else if(value instanceof Text) {
+                value = value.getValue();
+            }
+
+            // putting an empty string in front of it
+            // casts it to a JavaScript string even if it's
+            // more of a complicated type
+            ret[key] = ""+value;
+
+            // always try to parse this string to see if it's valid JSON
+            try {
+              ret[key] = JSON.parse(value);
+            } catch(e) {
+              // not valid JSON - don't do anything
+            }
+        }
+
+        return ret;
     }
 };
 exports = select;

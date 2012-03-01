@@ -83,16 +83,20 @@ var del = {
 apejs.urls = {
     "/": {
         get: function(request, response) {
+            var people = [];
             select("person").
                 find().
                 limit(10).
-                offset().
                 sort("name", "ASC").
-                each(function() {
-                    print(response).text(this.getProperty("name") + "<br>");
+                each(function(id) {
+                    people.push({
+                        id: id,
+                        name: this["name"],
+                        age: this["age"]
+                    });
                 });
 
-            var html = mustache.to_html(render("skins/index.html"));
+            var html = mustache.to_html(render("skins/index.html"), { people: people });
             print(response).text(html);
         },
         post: function(request, response) {
