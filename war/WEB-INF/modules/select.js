@@ -47,7 +47,7 @@ select.fn = {
             // it needs a Collection for properties with
             // multiple values
             if(record[i] instanceof Array)
-                record[i] = java.util.Arrays.asList(data[i]);
+                record[i] = java.util.Arrays.asList(record[i]);
 
             entity.setProperty(i, record[i]);
         }
@@ -66,11 +66,51 @@ select.fn = {
     //attr: function(record) {
 
     /**
+     * Limit the next database find query.
+     *
+     * @param {Number} limit Limits the next find() by this amount
+     * @returns {Object} The current `select` object
+     */
+    limit: function(limit) {
+        if(limit) this.fetchOptions = this.fetchOptions.limit(limit);
+        return this;
+    },
+    /**
+     * Offset the next database find query.
+     *
+     * @param {Number} offset Offset the next find() by this amount
+     * @returns {Object} The current `select` object
+     */
+    offset: function(offset) {
+        if(offset) this.fetchOptions = this.fetchOptions.offset(offset);
+        return this;
+    },
+
+    /**
+     * Sorts the results of the next find.
+     *
+     *      select('users').
+     *        find().
+     *        sort('name', 'ASC').
+     *        each(function() { console.log(this); });
+     *
+     * @param {String} propertyName - the property to which to sort on
+     * @param {String} direction - either "ASC" or "DESC"
+     * @returns {Object} The current `select` object
+     */
+    sort: function(propertyName, direction) {
+        direction = this.sortDirections[direction||"ASC"] || direction;
+        this.query.addSort(propertyName, Query.SortDirection[direction]);
+        return this;
+    },
+
+    /**
      * Find records.
      *
      * Find based on ID:
      *      select('users').
-     *        find(1, function(err, values) {});
+     *        find(1).
+     *        each(function() { console.log(this); });
      *
      * Find based on attributes:
      *      select('users').
@@ -81,6 +121,10 @@ select.fn = {
      */
     find: function(options, fn) {
         this.options = options;
+        if(typeof this.options === "object" || !this.options) {
+            // start a query, cuz we know it's not a single value
+            this.query = new Query(this.kind);
+        }
         return this;
     },
     /**
@@ -101,13 +145,12 @@ select.fn = {
             var entity = this.datastore.get(key);
 
             this.results.push(entity);
-        } else if (typeof this.options === "object") {
-            var q = new Query(this.kind);
+        } else if (this.query) {
             for(var x in this.options) {
                 var operator = this.filterOperators["="];
-                q.addFilter(x, Query.FilterOperator[operator], this.options[x]);
+                this.query.addFilter(x, Query.FilterOperator[operator], this.options[x]);
             }
-            var preparedQuery = this.datastore.prepare(q);
+            var preparedQuery = this.datastore.prepare(this.query);
             this.results = preparedQuery.asList(this.fetchOptions).toArray();
         }
 

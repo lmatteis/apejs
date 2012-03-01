@@ -84,26 +84,25 @@ apejs.urls = {
     "/": {
         get: function(request, response) {
             select("person").
-                find(1).
+                find().
+                limit(10).
+                offset().
+                sort("name", "ASC").
                 each(function() {
-                    print(response).text(this.getProperty("name") + " ciao <br>");
+                    print(response).text(this.getProperty("name") + "<br>");
                 });
+
             var html = mustache.to_html(render("skins/index.html"));
             print(response).text(html);
         },
         post: function(request, response) {
             select('person').
-                add({ name: "Luca Matteis" });
-            /*
-            var person = googlestore.entity("Person", {
-                "name"  : request.getParameter("name"),
-                "gender": request.getParameter("gender"),
-                "age":    parseInt(request.getParameter("age"), 10)
-            });
-            // FIXME - abstract put so it uses transactions
-            googlestore.put(person);
+                add({
+                    "name"  : request.getParameter("name"),
+                    "gender": request.getParameter("gender"),
+                    "age":    parseInt(request.getParameter("age"), 10)
+                });
             response.sendRedirect("/");
-            */
         }
     },
     "/test" : test,
