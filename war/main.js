@@ -3,110 +3,31 @@ var select = require("select.js");
 
 var mustache = require("./common/mustache.js");
 
-var test = {
-    get: function(request, response) {
-        try {
-            var print = printer(response);
-            print("<h1>Filtering and sorting</h1>");
-            print(render("./skins/form.html"));
-            var people = googlestore.query("Person").fetch();
-            people.forEach(function(person){
-                require("./skins/person.js", {
-                    "print" : print,
-                    "person": person
-                });
-            });
-        } catch (e) {
-            response.getWriter().println(e.getMessage());
-        }
-    },
-    post: function(request, response) {
-        try {
-            var param = request.getParameter.bind(request);
-            var print = printer(response);
-
-            print("<h1>Filtering and sorting</h1>");
-            print(render("./skins/form.html"));
-
-            // filter value can be string or number
-            var filter_val = parseInt(param("filter_val"), 10);
-            if (typeof filter_val != 'number') {
-                filter_val = param("filter_val");
-            }
-
-            // select...
-            var people = googlestore.query("Person")
-                .filter(param("filter_by"), param("filter_op"), filter_val)
-                .sort(param("filter_by"))
-                .sort(param("sort_by"), param("sort_dir"))
-                .fetch();
-
-            // ...and list people
-            people.forEach(function(person){
-                require("./skins/person.js", {
-                    "print" : print,
-                    "person": person
-                });
-            });
-            
-            // Error message for empty result set
-            if (!people.length) {
-              print("No match.");
-            }
-        } catch (e) {
-            response.getWriter().println(e.getMessage());
-        }
-    }
-};
-
-var person = {
-    get: function(request, response, matches) {
-        var id     = parseInt(matches[1], 10);
-        var key    = googlestore.createKey("Person", id);
-        var person = googlestore.get(key);
-        require("./skins/person.js", {
-                "print" : printer(response),
-                "person": person
-        });
-    }
-};
-
-var del = {
-    get: function(request, response, matches) {
-        var id  = parseInt(matches[1], 10);
-        var key = googlestore.createKey("Person", id);
-        googlestore.del(key);
-        response.sendRedirect("/");
-    }
-}
-
 apejs.urls = {
     "/": {
         get: function(request, response) {
             var p = param(request);
 
-            var people = [];
-            select("person").
-                find().
-                limit(10).
-                sort("name", "ASC").
-                each(function(id) {
-                    people.push({
+            var html = mustache.to_html(render("skins/index.html"));
+            print(response).text(html);
+
+            select("person")
+                .find()
+                .sort("name", "ASC")
+                .each(function(id) {
+                    var person = mustache.to_html(render("skins/person.html"), {
                         id: id,
                         name: this["name"],
                         age: this["age"],
-                        jobs: this["jobs"]
+                        gender: this["gender"]
                     });
+                    print(response).text(person);
                 });
-
-            var html = mustache.to_html(render("skins/index.html"), { people: people });
-            print(response).text(html);
         },
         post: function(request, response) {
             var p = param(request);
-
-            select('person').
-                add({
+            select('person')
+                .add({
                     "name"  : p("name"),
                     "gender": p("gender"),
                     "age":    parseInt(p("age"), 10),
@@ -116,9 +37,78 @@ apejs.urls = {
             response.sendRedirect("/");
         }
     },
-    "/test" : test,
-    "/person/([a-zA-Z0-9_]+)" : person,
-    "/delete/([0-9]+)" : del
+    "/test" : {
+        get: function(request, response) {
+            var form = mustache.to_html(render("skins/form.html"));
+            print(response).text(form);
+
+            select("person")
+                .find()
+                .sort("name", "ASC")
+                .each(function(id) {
+                    var person = mustache.to_html(render("skins/person.html"), {
+                        id: id,
+                        name: this["name"],
+                        age: this["age"],
+                        gender: this["gender"]
+                    });
+                    print(response).text(person);
+                });
+        },
+        post: function(request, response) {
+            var par = param(request);
+
+            var form = mustache.to_html(render("skins/form.html"));
+            print(response).text(form);
+
+            // filter value can be string or number
+            var filter_val = par("filter_val");
+
+            // select... XXX defaults always to = for now
+            var filter = {};
+            filter[par("filter_by")] = filter_val;
+
+
+            select("person")
+                .find(filter)
+                .sort(par("filter_by"))
+                .sort(par("sort_by"), par("sort_dir"))
+                .each(function(id) {
+                    var person = mustache.to_html(render("skins/person.html"), {
+                        id: id,
+                        name: this["name"],
+                        age: this["age"],
+                        gender: this["gender"]
+                    });
+                    print(response).text(person);
+                });
+        }
+    },
+    "/person/([a-zA-Z0-9_]+)" : {
+        get: function(request, response, matches) {
+            var id     = parseInt(matches[1], 10);
+            select("person")
+                .find(id)
+                .each(function(id) {
+                    var person = mustache.to_html(render("skins/person.html"), {
+                        id: id,
+                        name: this["name"],
+                        age: this["age"],
+                        gender: this["gender"]
+                    });
+                    print(response).text(person);
+                });
+        }
+    },
+    "/delete/([0-9]+)" : {
+        get: function(request, response, matches) {
+            var id  = parseInt(matches[1], 10);
+            select("person")
+                .find(id)
+                .del();
+            response.sendRedirect("/");
+        }
+    }
 };
 
 

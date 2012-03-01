@@ -15,7 +15,7 @@ select.fn = {
         this.query = false;
         this.options = false;
         this.fetchOptions = FetchOptions.Builder.withDefaults();
-        this.results = [];
+        this.result = [];
 
         this.filterOperators = {
             '<' : 'LESS_THAN',
@@ -53,9 +53,11 @@ select.fn = {
                 value = JSON.stringify(value);
             }
 
+            /*
             if(value instanceof java.lang.String || typeof value === "string") {
                 value = new Text(value);
             }
+            */
 
             entity.setProperty(i, value);
         }
@@ -138,36 +140,56 @@ select.fn = {
         return this;
     },
     /**
-     * Causes the previous `find()` to run, and iterates over the results.
+     * Causes the previous `find()` to run, and iterates over the result.
      * In the passed in callback, `this` will refer to each value.
      *
      *      select('users').
      *        find().
      *        sort('name').
-     *        each(function() { console.log(this); });
+     *        each(function(id) { console.log(this); });
      *
      * @param {Function} fn A callback that will be run for each value
      * @returns {Object} The current `select` object
      */
     each: function(fn) {
+        this.result = this.getResult();
+
+        for(var i=0; i<this.result.length; i++) {
+            var ent = this.result[i];
+            fn.call(this.toJS(ent), ent.getKey().getId());
+        }
+    },
+
+    /**
+     * Delete the current set of values specificed by `.find()`
+     *      
+     *      select("users").find({ type: "trial" }).del();
+     *
+     */
+    del: function() {
+        this.result = this.getResult();
+        for(var i=0; i<this.result.length; i++) {
+            var ent = this.result[i];
+            this.datastore["delete"](ent.getKey());
+        }
+    },
+
+    getResult: function() {
+        var result = [];
         if(typeof this.options === "number" || typeof this.options === "string") {
             var key = KeyFactory.createKey(this.kind, this.options); 
             var entity = this.datastore.get(key);
 
-            this.results.push(entity);
+            result.push(entity);
         } else if (this.query) {
             for(var x in this.options) {
                 var operator = this.filterOperators["="];
                 this.query.addFilter(x, Query.FilterOperator[operator], this.options[x]);
             }
             var preparedQuery = this.datastore.prepare(this.query);
-            this.results = preparedQuery.asList(this.fetchOptions).toArray();
+            result = preparedQuery.asList(this.fetchOptions).toArray();
         }
-
-        for(var i=0; i<this.results.length; i++) {
-            var ent = this.results[i];
-            fn.call(this.toJS(ent), ent.getKey().getId());
-        }
+        return result;
     },
 
     /**
