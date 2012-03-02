@@ -15,7 +15,6 @@ select.fn = {
         this.query = false;
         this.options = false;
         this.fetchOptions = FetchOptions.Builder.withDefaults();
-        this.result = [];
 
         this.filterOperators = {
             '<' : 'LESS_THAN',
@@ -42,24 +41,8 @@ select.fn = {
      */
     add: function(record) {
         var entity = new Entity(this.kind);
-        for(var i in record) {
-            var value = record[i];
-            // google's datastore doesn't like native arrays.
-            // it needs a Collection for properties with
-            // multiple values
-            if(this.isArray(value)) {
-                value = java.util.Arrays.asList(value);
-            } else if(this.isObject(value)) {
-                value = JSON.stringify(value);
-            }
-
-            /*
-            if(value instanceof java.lang.String || typeof value === "string") {
-                value = new Text(value);
-            }
-            */
-
-            entity.setProperty(i, value);
+        for(var key in record) {
+            this.setProperty(entity, key, record[key]);
         }
         this.datastore.put(entity);
     },
@@ -73,7 +56,17 @@ select.fn = {
      * @param {Object} record An object containing values for a new record in the collection.
      * @returns {Object} The current `select` object
     */
-    //attr: function(record) {
+    attr: function(record) {
+        var result = this.getResult();
+        for(var i=0; i<result.length; i++) {
+            var entity = result[i];
+            for(var key in record) {
+                this.setProperty(entity, key, record[key]);
+            }
+            // XXX should do bulk update
+            this.datastore.put(entity);
+        }
+    },
 
     /**
      * Limit the next database find query.
@@ -152,10 +145,10 @@ select.fn = {
      * @returns {Object} The current `select` object
      */
     each: function(fn) {
-        this.result = this.getResult();
+        var result = this.getResult();
 
-        for(var i=0; i<this.result.length; i++) {
-            var ent = this.result[i];
+        for(var i=0; i<result.length; i++) {
+            var ent = result[i];
             fn.call(this.toJS(ent), ent.getKey().getId());
         }
     },
@@ -167,9 +160,10 @@ select.fn = {
      *
      */
     del: function() {
-        this.result = this.getResult();
-        for(var i=0; i<this.result.length; i++) {
-            var ent = this.result[i];
+        var result = this.getResult();
+        for(var i=0; i<result.length; i++) {
+            var ent = result[i];
+            // XXX should do bulk delete
             this.datastore["delete"](ent.getKey());
         }
     },
@@ -248,6 +242,22 @@ select.fn = {
         }
 
         return ret;
+    },
+    setProperty: function(entity, key, value) {
+        // google's datastore doesn't like native arrays.
+        // it needs a Collection for properties with
+        // multiple values
+        if(this.isArray(value)) {
+            value = java.util.Arrays.asList(value);
+        } else if(this.isObject(value)) {
+            value = JSON.stringify(value);
+        }
+        /*
+        if(value instanceof java.lang.String || typeof value === "string") {
+            value = new Text(value);
+        }
+        */
+        entity.setProperty(key, value);
     },
     isArray: function( obj ) {
         return toString.call(obj) === "[object Array]";

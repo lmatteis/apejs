@@ -100,6 +100,15 @@ apejs.urls = {
                 });
         }
     },
+    "/edit/([0-9]+)" : {
+        get: function(request, response, matches) {
+            var id  = parseInt(matches[1], 10);
+            select("person")
+                .find()
+                .attr({name: "Fuck"});
+            response.sendRedirect("/");
+        }
+    },
     "/delete/([0-9]+)" : {
         get: function(request, response, matches) {
             var id  = parseInt(matches[1], 10);
