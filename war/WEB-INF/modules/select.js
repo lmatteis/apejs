@@ -233,12 +233,15 @@ select.fn = {
             }
 
             // always try to parse this string to see if it's valid JSON
+            /* for now we don't want to parse everytime
+             * parsing should be a decision of the user
             try {
                 if(typeof ret[key] === "string")
                     ret[key] = JSON.parse(value);
             } catch(e) {
               // not valid JSON - don't do anything
             }
+            */
         }
 
         return ret;
