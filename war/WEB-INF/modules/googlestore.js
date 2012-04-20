@@ -22,6 +22,9 @@ var googlestore = (function(){
         'ASC' : 'ASCENDING',
         'DESC': 'DESCENDING'
     };
+    function isObject( obj ) {
+        return toString.call(obj) === "[object Object]";
+    } 
 
     return {
         datastore: DatastoreServiceFactory.getDatastoreService(),
@@ -45,6 +48,11 @@ var googlestore = (function(){
                 // multiple values
                 if(data[i] instanceof Array)
                     data[i] = java.util.Arrays.asList(data[i]);
+
+                if(isObject(data[i])) {
+                    // let's stringify it fuck
+                    data[i] = JSON.stringify(data[i]);
+                }
                 entity.setProperty(i, data[i]);
             }
             return entity;
