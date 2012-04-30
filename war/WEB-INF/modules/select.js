@@ -154,6 +154,29 @@ select.fn = {
     },
 
     /**
+     * Receives all of the values for the previous operations.
+     * When a query produces an empty set, `each` won't run, but `values` would.
+     *
+     *      select('users').
+     *        find().
+     *        sort('name').
+     *        values(function(values) { console.log(values); });
+     *
+     * @param {Function} fn A callback that gets `values` 
+     * @returns {Object} The current `select` object
+     */
+    values: function(fn) {
+        var result = this.getResult();
+        var values = [];
+
+        for(var i=0; i<result.length; i++) {
+            var ent = result[i];
+            values.push(this.toJS(ent));
+        }
+        fn(values);
+    },
+
+    /**
      * Delete the current set of values specificed by `.find()`
      *      
      *      select("users").find({ type: "trial" }).del();
