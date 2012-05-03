@@ -105,7 +105,7 @@ apejs.urls = {
             var id  = parseInt(matches[1], 10);
             select("person")
                 .find()
-                .attr({name: "Fuck"});
+                .attr({name: "Name Has Been Edited"});
             response.sendRedirect("/");
         }
     },
