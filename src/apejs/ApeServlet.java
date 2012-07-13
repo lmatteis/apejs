@@ -64,7 +64,7 @@ public class ApeServlet extends HttpServlet {
     /**
      * Evaluates main.js, starts the global scope and defines somes global JS functions
      */
-    private ScriptableObject initGlobalContext(Context context) throws IOException { 
+    private ScriptableObject initGlobalContext(Context context) throws IOException, ServletException { 
         String mainFileName = "main.js";
         File mainFile = new File(APP_PATH + "/" + mainFileName);
 
@@ -79,7 +79,9 @@ public class ApeServlet extends HttpServlet {
         global.defineFunctionProperties(names, ApeServlet.class, ScriptableObject.DONTENUM);
         
         // compile main.js
-        context.evaluateReader(global, new InputStreamReader(new FileInputStream(mainFile), "ISO-8859-1"), mainFileName, 1, null);
+        Script script = context.compileString(getContents(mainFile), mainFileName, 1, null);
+        script.exec(context, global);
+        //context.evaluateReader(global, new InputStreamReader(new FileInputStream(mainFile), "ISO-8859-1"), mainFileName, 1, null);
         return global;
     }
 
@@ -101,7 +103,9 @@ public class ApeServlet extends HttpServlet {
             obj.setParentScope(thisObj); // not sure what this does (i think it's for importPackage to work)
             ScriptableObject.putProperty(obj, "exports", cx.newObject(obj));
             
-            cx.evaluateReader(obj, new InputStreamReader(new FileInputStream(f), "ISO-8859-1"), filename, 1, null);
+            Script script = cx.compileString(getContents(f), filename, 1, null);
+            script.exec(cx, obj);
+            //cx.evaluateReader(obj, new InputStreamReader(new FileInputStream(f), "ISO-8859-1"), filename, 1, null);
 
         } catch (IOException e) {
             throw new ServletException(e);
