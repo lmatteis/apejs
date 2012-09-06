@@ -15,30 +15,25 @@
 $(function(){
 
 // get contributors
-$.getJSON("https://github.com/api/v2/json/repos/show/lmatteis/apejs/contributors?callback=?", function(data) {
-    $.each(data.contributors, function() {
-        $(".contributors").append('<a title="'+this.name+'" href="https://github.com/'+this.login+'"><img src="http://www.gravatar.com/avatar/'+this.gravatar_id+'?s=20&d=identicon&r=PG"></a>');
+$.getJSON("https://api.github.com/repos/lmatteis/apejs/contributors?callback=?", function(data) {
+    $.each(data.data, function() {
+        $(".contributors").append('<a title="'+this.login+'" href="https://github.com/'+this.login+'"><img src="http://www.gravatar.com/avatar/'+this.gravatar_id+'?s=20&d=identicon&r=PG"></a>');
     });
 });
 
 
-// get commits list of README.md so we can get the latest commit which is the first in the array
-$.getJSON("https://github.com/api/v2/json/commits/list/lmatteis/apejs/master/README.md?callback=?", function(data) {
-    var latest_commit = data.commits[0],
-        latest_commit_id = latest_commit.id;
 
-    // now  get the README.md blob
-    $.getJSON("https://github.com/api/v2/json/blob/show/lmatteis/apejs/"+latest_commit_id+"/README.md?callback=?", function(data) {
-        // convert markdown to html
-        var md = data.blob.data;
-        var converter = new Showdown.converter();
-        var html = converter.makeHtml(md);
+// now  get the README.md blob
+$.getJSON("https://api.github.com/repos/lmatteis/apejs/readme?callback=?", function(data) {
+    // convert markdown to html
+    var md = data.blob.data;
+    var converter = new Showdown.converter();
+    var html = converter.makeHtml(md);
 
-        $("#content").html(html);;
-
-    });
+    $("#content").html(html);;
 
 });
+
 
 });
 
