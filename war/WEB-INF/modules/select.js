@@ -22,7 +22,8 @@ select.fn = {
             '=' : 'EQUAL',
             '>' : 'GREATER_THAN',
             '>=': 'GREATER_THAN_OR_EQUAL',
-            '!=': 'NOT_EQUAL'
+            '!=': 'NOT_EQUAL',
+            '[]': 'IN'
         };
 
         this.sortDirections = {
@@ -200,8 +201,23 @@ select.fn = {
             result.push(entity);
         } else if (this.query) {
             for(var x in this.options) {
-                var operator = this.filterOperators["="];
-                this.query.addFilter(x, Query.FilterOperator[operator], this.options[x]);
+                if (!this.options.hasOwnProperty(x)) { continue; }
+                // last char(s) of property name gives operator
+                // if no operator suffix is present, does EQUAL comparison
+                var base = x, operator = 'EQUAL';
+                [x.substring(0, x.length-1), x.substring(0, x.length-2)]
+                    .forEach(function(nbase) {
+                        var opstr = x.substring(nbase.length); // suffix
+                        if (this.filterOperators.hasOwnProperty(opstr)) {
+                            base = nbase;
+                            operator = this.filterOperators[opstr];
+                        }
+                    }.bind(this));
+                // XXX 'in' operator requires a list on the RHS, probably
+                //     doesn't work yet.  numeric comparisons *must* have
+                //     typeof(this.options[x])==='number' to work correctly.
+                this.query.addFilter(base, Query.FilterOperator[operator],
+                                     this.options[x]);
             }
             var preparedQuery = this.datastore.prepare(this.query);
             result = preparedQuery.asList(this.fetchOptions).toArray();
