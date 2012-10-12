@@ -1,0 +1,11 @@
+build.properties
+logs.txt
+war/WEB-INF/appengine-generated
+war/WEB-INF/appengine-web.xml
+war/WEB-INF/classes
+war/WEB-INF/modules/version.js
+war/WEB-INF/lib/appengine-*.jar
+war/WEB-INF/lib/datanucleus-*.jar
+war/WEB-INF/lib/geronimo-*.jar
+war/WEB-INF/lib/jdo2-*.jar
+war/WEB-INF/lib/jsr107cache-*.jar
