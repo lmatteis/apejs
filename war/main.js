@@ -1,5 +1,7 @@
 var apejs = require("apejs.js");
+var console = require("console.js");
 var select = require("select.js");
+var version = require("version.js");
 
 var mustache = require("./common/mustache.js");
 
@@ -8,7 +10,10 @@ apejs.urls = {
         get: function(request, response) {
             var p = param(request);
 
-            var html = mustache.to_html(render("skins/index.html"));
+            var html = mustache.to_html(render("skins/index.html"), {
+                package: version.package,
+                version: version.number
+            });
             print(response).text(html);
 
             select("person")
@@ -61,12 +66,20 @@ apejs.urls = {
             var form = mustache.to_html(render("skins/form.html"));
             print(response).text(form);
 
+            var filter_by = par("filter_by");
             // filter value can be string or number
             var filter_val = par("filter_val");
 
-            // select... XXX defaults always to = for now
+            // note the hacky type conversions: par(...) does not yield a
+            // string directly, and numeric filters must have a number.
+            filter_by = '' + filter_by;
+            filter_val = '' + filter_val;
+            if (filter_by==='age') {
+                filter_val = +filter_val;
+            }
+            // create select options
             var filter = {};
-            filter[par("filter_by")] = filter_val;
+            filter[filter_by + par("filter_op")] = filter_val;
 
 
             select("person")
@@ -104,8 +117,8 @@ apejs.urls = {
         get: function(request, response, matches) {
             var id  = parseInt(matches[1], 10);
             select("person")
-                .find()
-                .attr({name: "Fuck"});
+                .find(id)
+                .attr({name: "Name Has Been Edited"});
             response.sendRedirect("/");
         }
     },

@@ -1,22 +1,104 @@
-<project>
-    <!-- appengine gives us all the servlet api -->
-    <property name="sdk.dir" location="/Users/lucamatteis/Downloads/appengine-java-sdk-1.6.1/" />
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="apejs" basedir="." default="none">
+<description>
+A tiny JavaScript web framework targeted for
+Google App Engine (http://code.google.com/appengine).
 
-    <import file="${sdk.dir}/config/user/ant-macros.xml" />
+</description>
+<!-- package name is also google appengine task name; change if you fork -->
+<property name="package" value="apejs" />
+<!-- change version # here; all other locations inherit from this -->
+<property name="version" value="1" />
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml"
+	     classpath="lib/ant-contrib-1.0b3.jar" />
+
+    <!-- load the variable definitions from another file -->
+    <property file="build.properties" />
+    <!-- local copy of GAE ant macros -->
+    <import file="${gae.sdk}/config/user/ant-macros.xml" optional="true" />
 
     <!-- set classpath -->
+    <path id="gae.path">
+	<fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
+	<fileset dir="${gae.sdk}/lib" includes="shared/**/*.jar" />
+    </path>
     <path id="project.classpath">
-        <pathelement path="war/WEB-INF/classes" />
-        <fileset dir="war/WEB-INF/lib">
-          <include name="**/*.jar" />
-        </fileset>
-        <fileset dir="${sdk.dir}/lib">
-          <include name="shared/**/*.jar" />
-        </fileset>
+        <pathelement location="war/WEB-INF/classes" />
+	<path refid="gae.path" />
     </path>
 
+    <target name="none">
+            <echo>Type 'ant -projecthelp' for possible targets.</echo>
+    </target>
+
+    <!-- make the version file -->
+    <target name="version"
+	    description="Generates appengine-web.xml and version.js with the
+                            correct package name and version number.">
+      <!-- Generate appengine-web.xml.tmp -->
+      <copy file="src/appengine-web.xml.in"
+            tofile="war/WEB-INF/appengine-web.xml.tmp" >
+        <filterset>
+         <filter token="VERSION" value="${version}"/>
+         <filter token="PACKAGE" value="${package}"/>
+        </filterset>
+      </copy>
+      <!-- Replace appengine-web.xml if the new file is different -->
+      <if>
+	<filesmatch file1="war/WEB-INF/appengine-web.xml"
+		    file2="war/WEB-INF/appengine-web.xml.tmp" />
+        <else>
+	  <move file="war/WEB-INF/appengine-web.xml.tmp"
+		tofile="war/WEB-INF/appengine-web.xml" />
+        </else>
+      </if>
+      <!-- clean up the temp file in any case -->
+      <delete file="war/WEB-INF/appengine-web.xml.tmp" />
+      <!-- Generate version.js.tmp -->
+      <copy file="src/version.js.in"
+            tofile="war/WEB-INF/modules/version.js.tmp" >
+        <filterset>
+         <filter token="VERSION" value="${version}"/>
+         <filter token="PACKAGE" value="${package}"/>
+        </filterset>
+      </copy>
+      <!-- Replace version.js if the new file is different -->
+      <if>
+	<filesmatch file1="war/WEB-INF/modules/version.js"
+		    file2="war/WEB-INF/modules/version.js.tmp" />
+        <else>
+	  <move file="war/WEB-INF/modules/version.js.tmp"
+		tofile="war/WEB-INF/modules/version.js" />
+        </else>
+      </if>
+      <!-- clean up the temp file in any case -->
+      <delete file="war/WEB-INF/modules/version.js.tmp" />
+    </target>
+    <target name="echo-version"
+            description="Print the current version number." >
+      <echo message="Current version is: ${version}" />
+    </target>
+
+    <!-- copy user jars from current version of the SDK -->
+    <!-- this keeps us in sync w/ the version we're compiling against,
+         and lets appengine know what version of the SDK we're using -->
+    <target name="copyjars"
+            description="Copies the App Engine JARs to the WAR.">
+      <copy todir="war/WEB-INF/lib" flatten="true">
+        <fileset dir="${gae.sdk}/lib/user">
+          <include name="**/*.jar" />
+          <!-- avoid some unnecessary cruft; remove this if we decide to use
+               JDO objects in the future -->
+          <exclude name="**/datanucleus-*.jar" />
+          <exclude name="**/geronimo-*.jar" />
+          <exclude name="**/jdo2-*.jar" />
+        </fileset>
+      </copy>
+    </target>
+
     <!-- compile -->
-    <target name="compile"
+    <target name="compile" depends="version,copyjars"
       description="Compiles Java source and copies other source files to the WAR.">
         <mkdir dir="war/WEB-INF/classes" />
         <copy todir="war/WEB-INF/classes">
@@ -29,8 +111,54 @@
             srcdir="src"
             destdir="war/WEB-INF/classes"
             classpathref="project.classpath"
-            debug="on" />
+            debug="true" includeantruntime="false" />
         <!-- this restarts context -->
         <touch file="war/WEB-INF/appengine-web.xml"/>
+    </target>
+
+    <!-- delete generated files -->
+    <target name="clean" description="Removes the generated class files">
+      <delete dir="war/WEB-INF/classes" />
+      <delete file="war/WEB-INF/appengine-web.xml" />
+      <delete file="war/WEB-INF/modules/version.js" />
+      <delete>
+        <fileset dir="war/WEB-INF/lib">
+          <!-- keep this in sync with the copyjars target -->
+          <include name="appengine-*.jar" />
+          <include name="datanucleus-*.jar" />
+          <include name="geronimo-*.jar" />
+          <include name="jdo2-*.jar" />
+          <include name="jsr107cache-*.jar" />
+        </fileset>
+      </delete>
+    </target>
+
+    <!-- appengine tasks -->
+    <target name="runserver" depends="compile"
+            description="Launch the development web server for local testing">
+      <dev_appserver war="war" port="8888" />
+    </target>
+    <target name="update" depends="compile"
+            description="Deploy latest version to App Engine">
+      <appcfg action="update" war="war" />
+    </target>
+    <target name="update_indexes" depends="compile"
+            description="Uploads just the datastore index configuration to App Engine.">
+      <appcfg action="update_indexes" war="war" />
+    </target>
+    <target name="rollback" depends="compile"
+            description="Rolls back an interrupted application update.">
+      <appcfg action="rollback" war="war" />
+    </target>
+    <target name="request_logs"
+            description="Downloads log data from App Engine for the application.">
+      <appcfg action="request_logs" war="war">
+        <options>
+          <arg value="--num_days=5"/>
+        </options>
+        <args>
+          <arg value="logs.txt"/>
+        </args>
+      </appcfg>
     </target>
 </project>

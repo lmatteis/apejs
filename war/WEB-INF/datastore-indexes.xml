@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<datastore-indexes autoGenerate="true">
+    <!-- exhaustively generate all possible indexes for this demo -->
+    <!-- name, age, gender, asc and desc -->
+
+    <!-- asc asc -->
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="name" direction="asc"/>
+        <property name="age" direction="asc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="name" direction="asc"/>
+        <property name="gender" direction="asc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="age" direction="asc"/>
+        <property name="name" direction="asc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="age" direction="asc"/>
+        <property name="gender" direction="asc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="gender" direction="asc"/>
+        <property name="name" direction="asc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="gender" direction="asc"/>
+        <property name="age" direction="asc"/>
+    </datastore-index>
+
+    <!-- asc desc -->
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="name" direction="asc"/>
+        <property name="age" direction="desc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="name" direction="asc"/>
+        <property name="gender" direction="desc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="age" direction="asc"/>
+        <property name="name" direction="desc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="age" direction="asc"/>
+        <property name="gender" direction="desc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="gender" direction="asc"/>
+        <property name="name" direction="desc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="gender" direction="asc"/>
+        <property name="age" direction="desc"/>
+    </datastore-index>
+
+    <!-- desc asc -->
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="name" direction="desc"/>
+        <property name="age" direction="asc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="name" direction="desc"/>
+        <property name="gender" direction="asc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="age" direction="desc"/>
+        <property name="name" direction="asc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="age" direction="desc"/>
+        <property name="gender" direction="asc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="gender" direction="desc"/>
+        <property name="name" direction="asc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="gender" direction="desc"/>
+        <property name="age" direction="asc"/>
+    </datastore-index>
+
+    <!-- desc desc -->
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="name" direction="desc"/>
+        <property name="age" direction="desc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="name" direction="desc"/>
+        <property name="gender" direction="desc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="age" direction="desc"/>
+        <property name="name" direction="desc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="age" direction="desc"/>
+        <property name="gender" direction="desc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="gender" direction="desc"/>
+        <property name="name" direction="desc"/>
+    </datastore-index>
+    <datastore-index kind="person" ancestor="false" source="auto">
+        <property name="gender" direction="desc"/>
+        <property name="age" direction="desc"/>
+    </datastore-index>
+
+</datastore-indexes>

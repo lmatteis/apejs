@@ -50,7 +50,7 @@ var googlestore = (function(){
                     data[i] = java.util.Arrays.asList(data[i]);
 
                 if(isObject(data[i])) {
-                    // let's stringify it fuck
+                    // heck, let's stringify it
                     data[i] = JSON.stringify(data[i]);
                 }
                 entity.setProperty(i, data[i]);

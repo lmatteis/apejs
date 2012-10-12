@@ -1,0 +1,6 @@
+var version = {
+    'package': "@PACKAGE@",
+    'number': "@VERSION@"
+};
+
+exports = version;
