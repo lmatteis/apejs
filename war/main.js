@@ -1,15 +1,13 @@
 var apejs = require("apejs.js");
-var select = require("select.js");
+var select = require('select.js');
 
 var mustache = require("./common/mustache.js");
 
 apejs.urls = {
     "/": {
-        get: function(request, response) {
-            var p = param(request);
-
+        get: function(request, response, query) {
             var html = mustache.to_html(render("skins/index.html"));
-            print(response).text(html);
+            print(response).html(html);
 
             select("person")
                 .find()
@@ -21,16 +19,15 @@ apejs.urls = {
                         age: this["age"],
                         gender: this["gender"]
                     });
-                    print(response).text(person);
+                    print(response).html(person);
                 });
         },
-        post: function(request, response) {
-            var p = param(request);
+        post: function(request, response, query) {
             select('person')
                 .add({
-                    "name"  : p("name"),
-                    "gender": p("gender"),
-                    "age":    parseInt(p("age"), 10),
+                    "name"  : query.name,
+                    "gender": query.gender,
+                    "age":    parseInt(query.age, 10),
                     "jobs":   ["fanner", "fut", "fab"],
                     "json":   {"foo":"bar"}
                 });
@@ -40,7 +37,7 @@ apejs.urls = {
     "/test" : {
         get: function(request, response) {
             var form = mustache.to_html(render("skins/form.html"));
-            print(response).text(form);
+            print(response).html(form);
 
             select("person")
                 .find()
@@ -52,14 +49,14 @@ apejs.urls = {
                         age: this["age"],
                         gender: this["gender"]
                     });
-                    print(response).text(person);
+                    print(response).html(person);
                 });
         },
         post: function(request, response) {
             var par = param(request);
 
             var form = mustache.to_html(render("skins/form.html"));
-            print(response).text(form);
+            print(response).html(form);
 
             // filter value can be string or number
             var filter_val = par("filter_val");
@@ -80,12 +77,12 @@ apejs.urls = {
                         age: this["age"],
                         gender: this["gender"]
                     });
-                    print(response).text(person);
+                    print(response).html(person);
                 });
         }
     },
     "/person/([a-zA-Z0-9_]+)" : {
-        get: function(request, response, matches) {
+        get: function(request, response, q, matches) {
             var id     = parseInt(matches[1], 10);
             select("person")
                 .find(id)
@@ -96,12 +93,12 @@ apejs.urls = {
                         age: this["age"],
                         gender: this["gender"]
                     });
-                    print(response).text(person);
+                    print(response).html(person);
                 });
         }
     },
     "/edit/([0-9]+)" : {
-        get: function(request, response, matches) {
+        get: function(request, response, q, matches) {
             var id  = parseInt(matches[1], 10);
             select("person")
                 .find()
@@ -110,7 +107,7 @@ apejs.urls = {
         }
     },
     "/delete/([0-9]+)" : {
-        get: function(request, response, matches) {
+        get: function(request, response, q, matches) {
             var id  = parseInt(matches[1], 10);
             select("person")
                 .find(id)
@@ -124,15 +121,18 @@ apejs.urls = {
 // simple syntax sugar
 function print(response) {
     return {
-        text: function(text) {
-            if(text) response.getWriter().println(text);
+        html: function(str) {
+            if(str) {
+                response.setContentType('text/html');
+                response.getWriter().println(''+str);
+            }
+        },
+        json: function(j) {
+            if(j) {
+                var jsonString = JSON.stringify(j);
+                response.setContentType("application/json");
+                response.getWriter().println(jsonString);
+            }
         }
     };
-}
-function param(request) {
-    return function(par) {
-        var p = request.getParameter(par);
-        if(p) return p;
-        else return false;
-    }
 }
