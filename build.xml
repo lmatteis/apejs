@@ -1,17 +1,9 @@
 <project>
-    <!-- appengine gives us all the servlet api -->
-    <property name="sdk.dir" location="/Users/lucamatteis/Downloads/appengine-java-sdk-1.6.1/" />
-
-    <import file="${sdk.dir}/config/user/ant-macros.xml" />
-
     <!-- set classpath -->
     <path id="project.classpath">
         <pathelement path="war/WEB-INF/classes" />
         <fileset dir="war/WEB-INF/lib">
           <include name="**/*.jar" />
-        </fileset>
-        <fileset dir="${sdk.dir}/lib">
-          <include name="shared/**/*.jar" />
         </fileset>
     </path>
 
@@ -30,7 +22,5 @@
             destdir="war/WEB-INF/classes"
             classpathref="project.classpath"
             debug="on" />
-        <!-- this restarts context -->
-        <touch file="war/WEB-INF/appengine-web.xml"/>
     </target>
 </project>

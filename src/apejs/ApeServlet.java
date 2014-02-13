@@ -17,8 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.mozilla.javascript.*;
 
-import com.google.appengine.api.utils.*;
-
 public class ApeServlet extends HttpServlet {
     public static String APP_PATH;
 
@@ -48,9 +46,11 @@ public class ApeServlet extends HttpServlet {
             ScriptableObject global = this.global;
             
             // if we're in development mode, recompile the JavaScript everytime
+            /*
             if(SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
                 global = initGlobalContext(context); 
             }
+            */
 
             // get the "run" function from the apejs scope and run it
             ScriptableObject apejsScope = (ScriptableObject)global.get("apejs", global);
