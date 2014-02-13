@@ -46,11 +46,9 @@ public class ApeServlet extends HttpServlet {
             ScriptableObject global = this.global;
             
             // if we're in development mode, recompile the JavaScript everytime
-            /*
-            if(SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
+            if("true".equals(getServletConfig().getInitParameter("development"))) {
                 global = initGlobalContext(context); 
             }
-            */
 
             // get the "run" function from the apejs scope and run it
             ScriptableObject apejsScope = (ScriptableObject)global.get("apejs", global);
