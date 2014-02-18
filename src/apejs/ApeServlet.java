@@ -44,16 +44,18 @@ public class ApeServlet extends HttpServlet {
             res.setContentType("text/html");
 
             ScriptableObject global = this.global;
+
+            ServletConfig config = getServletConfig();
             
             // if we're in development mode, recompile the JavaScript everytime
-            if("true".equals(getServletConfig().getInitParameter("development"))) {
+            if("true".equals(config.getInitParameter("development"))) {
                 global = initGlobalContext(context); 
             }
 
             // get the "run" function from the apejs scope and run it
             ScriptableObject apejsScope = (ScriptableObject)global.get("apejs", global);
             Function fct = (Function)apejsScope.get("run", apejsScope);
-            Object result = fct.call(context, global, apejsScope, new Object[] {req, res});
+            Object result = fct.call(context, global, apejsScope, new Object[] {req, res, config});
         } finally {
             Context.exit();
         }
