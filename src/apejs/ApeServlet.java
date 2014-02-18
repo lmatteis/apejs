@@ -19,12 +19,15 @@ import org.mozilla.javascript.*;
 
 public class ApeServlet extends HttpServlet {
     public static String APP_PATH;
+    public static ServletConfig CONFIG;
 
     private ScriptableObject global;
 
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         APP_PATH = config.getServletContext().getRealPath(".");
+        CONFIG = config;
+
         Context context = Context.enter();
         try {
             global = initGlobalContext(context);
@@ -45,17 +48,15 @@ public class ApeServlet extends HttpServlet {
 
             ScriptableObject global = this.global;
 
-            ServletConfig config = getServletConfig();
-            
             // if we're in development mode, recompile the JavaScript everytime
-            if("true".equals(config.getInitParameter("development"))) {
+            if("true".equals(getServletConfig().getInitParameter("development"))) {
                 global = initGlobalContext(context); 
             }
 
             // get the "run" function from the apejs scope and run it
             ScriptableObject apejsScope = (ScriptableObject)global.get("apejs", global);
             Function fct = (Function)apejsScope.get("run", apejsScope);
-            Object result = fct.call(context, global, apejsScope, new Object[] {req, res, config});
+            Object result = fct.call(context, global, apejsScope, new Object[] {req, res});
         } finally {
             Context.exit();
         }
@@ -74,7 +75,8 @@ public class ApeServlet extends HttpServlet {
         // add the global "names" like require
         String[] names = new String[] {
             "require",
-            "render" 
+            "render",
+            "getServletConfig"
         };
         global.defineFunctionProperties(names, ApeServlet.class, ScriptableObject.DONTENUM);
         
@@ -83,6 +85,10 @@ public class ApeServlet extends HttpServlet {
         script.exec(context, global);
         //context.evaluateReader(global, new InputStreamReader(new FileInputStream(mainFile), "ISO-8859-1"), mainFileName, 1, null);
         return global;
+    }
+
+    public static ServletConfig getServletConfig(Context cx, Scriptable thisObj, Object[] args, Function funObj) throws ServletException {
+        return ApeServlet.CONFIG;
     }
 
     public static ScriptableObject require(Context cx, Scriptable thisObj, Object[] args, Function funObj) throws ServletException {
