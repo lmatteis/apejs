@@ -100,7 +100,7 @@ To create an *entity* and store it in the datastore you do:
         "name": "Luca",
         "age": 25,
         "gender": "female",
-        "nationality: "Italian"
+        "nationality": "Italian"
     });
 
     // save the entity to the datastore
